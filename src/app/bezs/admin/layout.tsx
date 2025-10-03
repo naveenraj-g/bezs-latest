@@ -1,5 +1,5 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AdminModalProvider } from "@/modules/admin/providers/admin-modal-provider";
+import { AdminModalProvider } from "@/modules/admin/frontend/providers/admin-modal-provider";
 import BreadCrumb from "@/modules/shared/components/breadcrumb";
 import { CommonSideBar } from "@/modules/shared/components/menubar/common-sidebar";
 

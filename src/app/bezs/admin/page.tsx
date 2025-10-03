@@ -10,9 +10,9 @@ const AdminPage = async () => {
       </div>
       <Link
         className={buttonVariants({ variant: "link", size: "sm" })}
-        href="/bezs/admin/manage-users"
+        href="/bezs/admin/manage-apps"
       >
-        Manage Users
+        Manage Apps
       </Link>
     </div>
   );

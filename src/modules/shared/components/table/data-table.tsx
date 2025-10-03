@@ -41,6 +41,7 @@ import {
   Loader2,
   Plus,
   Search,
+  TriangleAlert,
   X,
 } from "lucide-react";
 import {
@@ -242,7 +243,9 @@ export function DataTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="text-center">
-                  {fallbackText}
+                  <div className="flex items-center justify-center gap-2">
+                    <TriangleAlert className="h-4 w-4" /> {fallbackText}
+                  </div>
                 </TableCell>
               </TableRow>
             )}
@@ -272,7 +275,11 @@ export function DataTable<TData, TValue>({
             </SelectContent>
           </Select>
         </div>
-        <p className="text-sm font-semibold">{`Page ${table.getPageCount() === 0 ? 0 : table.getState().pagination.pageIndex + 1} of ${table.getPageCount()}`}</p>
+        <p className="text-sm font-semibold">{`Page ${
+          table.getPageCount() === 0
+            ? 0
+            : table.getState().pagination.pageIndex + 1
+        } of ${table.getPageCount()}`}</p>
         <div className="space-x-2">
           <Button
             variant="outline"

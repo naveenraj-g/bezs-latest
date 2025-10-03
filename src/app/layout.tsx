@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
+import NextTopLoader from "nextjs-toploader";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -22,6 +23,7 @@ export default function RootLayout({
       <body className={`${dmSans.className} antialiased`}>
         {children}
         <Toaster />
+        <NextTopLoader showSpinner={false} />
       </body>
     </html>
   );
