@@ -3,4 +3,8 @@ export interface IIdResolverRepository {
     userId: string,
     orgId: string
   ): Promise<string | null>;
+  resolvePatientIdByUserIdAndOrgId(
+    userId: string,
+    orgId: string
+  ): Promise<string | null>;
 }

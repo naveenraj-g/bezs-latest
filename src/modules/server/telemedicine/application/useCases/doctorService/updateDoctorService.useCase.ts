@@ -25,7 +25,7 @@ export async function updateDoctorServiceUseCase(
     throw new Error("Doctor not found");
   }
 
-  const data = await doctorServiceRepository.createDoctorService({
+  const data = await doctorServiceRepository.updateDoctorService({
     ...rest,
     doctorId,
   });

@@ -24,12 +24,12 @@ export const homeSidebarData = {
         {
           title: "Dashboard",
           url: "/bezs",
-          icon: LayoutDashboard,
+          icon: "layout-dashboard",
         },
         {
           title: "Calendar",
           url: "/bezs/calendar",
-          icon: CalendarRange,
+          icon: "calendar-range",
         },
       ],
     },
@@ -38,22 +38,22 @@ export const homeSidebarData = {
       items: [
         {
           title: "Settings",
-          icon: Settings,
+          icon: "settings",
           items: [
             {
               title: "Profile",
               url: "/bezs/settings",
-              icon: UserCog,
+              icon: "user-cog",
             },
             {
               title: "Account",
               url: "/bezs/settings/account",
-              icon: Wrench,
+              icon: "wrench",
             },
             {
               title: "Preference",
               url: "/bezs/settings/preference",
-              icon: Palette,
+              icon: "palette",
             },
           ],
         },

@@ -1,13 +1,21 @@
+import { TAppointment } from "@/modules/shared/entities/models/telemedicine/appointment";
 import { create } from "zustand";
 
-export type ModalType = "doctorReview" | "confirmedAppointmentMessage";
+export type ModalType =
+  | "doctorReview"
+  | "confirmedAppointmentMessage"
+  | "bookAppointment"
+  | "rescheduleAppointment"
+  | "cancelAppointment"
+  | "viewAppointment"
+  | "deleteAppointment";
 
 interface PatientStore {
   type: ModalType | null;
   isOpen: boolean;
   doctorProfileId?: string;
   doctorData?: any;
-  appointmentData?: any;
+  appointmentData?: TAppointment | null;
   trigger: number;
   triggerInModal: number;
   incrementTrigger: () => void;
@@ -16,7 +24,7 @@ interface PatientStore {
     type: ModalType;
     doctorProfileId?: string;
     doctorData?: any;
-    appointmentData?: any;
+    appointmentData?: TAppointment;
   }) => void;
   onClose: () => void;
 }

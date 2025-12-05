@@ -7,10 +7,13 @@ import {
   TCreateDoctorServiceControllerOutput,
   TDeleteDoctorServiceControllerOutput,
   TGetDoctorServiceControllerOutput,
+  TUpdateDoctorServiceControllerOutput as TEditDoctorServiceControllerOutput,
+  updateDoctorServiceController as editDoctorServiceController,
 } from "@/modules/server/telemedicine/interface-adapters/controllers/doctorService";
 import {
   DoctorServiceValidationSchema as CreateDoctorServiceValidationSchema,
   DeleteDoctorServiceValidationSchema,
+  EditDoctorServiceValidationSchema,
   GetDoctorServiceValidationSchema,
 } from "@/modules/shared/schemas/telemedicine/doctorService/doctorServiceValidationSchema";
 import { withMonitoring } from "@/modules/shared/utils/serverActionWithMonitoring";
@@ -38,6 +41,20 @@ export const createDoctorService = createServerAction()
         url: "/bezs/telemedicine/doctor/settings/services",
         revalidatePath: true,
         operationErrorMessage: "Failed to create service.",
+      }
+    );
+  });
+
+export const EditDoctorService = createServerAction()
+  .input(EditDoctorServiceValidationSchema, { skipInputParsing: true })
+  .handler(async ({ input }) => {
+    return await withMonitoring<TEditDoctorServiceControllerOutput>(
+      "EditDoctorService",
+      () => editDoctorServiceController(input),
+      {
+        url: "/bezs/telemedicine/doctor/settings/services",
+        revalidatePath: true,
+        operationErrorMessage: "Failed to edit service.",
       }
     );
   });

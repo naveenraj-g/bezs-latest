@@ -50,6 +50,16 @@ export type TDoctorServiceValidation = z.infer<
   typeof DoctorServiceValidationSchema
 >;
 
+export const EditDoctorServiceValidationSchema =
+  DoctorServiceValidationSchema.merge(
+    z.object({
+      id: z.string().min(1, "Service ID is required"),
+    })
+  );
+export type TEditDoctorServiceValidation = z.infer<
+  typeof EditDoctorServiceValidationSchema
+>;
+
 export const CreateDoctorServiceFormSchema = DoctorServiceValidationSchema.omit(
   {
     orgId: true,

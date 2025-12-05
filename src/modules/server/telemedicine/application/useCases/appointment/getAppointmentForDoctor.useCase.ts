@@ -8,22 +8,21 @@ export async function getAppointmentsForDoctorUseCase(
   const appointmentRepository = getTelemedicineInjection(
     "IAppointmentRepository"
   );
-  const doctorProfileRepository = getTelemedicineInjection(
-    "IDoctorProfileRepository"
+  const idResolverRepository = getTelemedicineInjection(
+    "IIdResolverRepository"
   );
 
-  const doctorProfile =
-    await doctorProfileRepository.getDoctorInitialProfileByUniqueFields(
-      orgId,
-      userId
-    );
+  const doctorId = await idResolverRepository.resolveDoctorIdByUserIdAndOrgId(
+    userId,
+    orgId
+  );
 
-  if (!doctorProfile) {
+  if (!doctorId) {
     throw new Error("Doctor not found");
   }
 
   const data = await appointmentRepository.getAppointmentsForDoctor(
-    doctorProfile.id,
+    doctorId,
     orgId
   );
 

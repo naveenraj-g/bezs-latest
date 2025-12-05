@@ -103,7 +103,7 @@ export const manageServicesColumn = (
     accessorKey: "createdAt",
     cell: ({ row }) => {
       const openModal = doctorModalStore((state) => state.onOpen);
-      const serviceId = row.original.id;
+      const data = row.original;
       const joinedDate: Date = row.getValue("createdAt");
 
       return (
@@ -120,7 +120,14 @@ export const manageServicesColumn = (
               </DropdownMenuItem> */}
               <DropdownMenuItem
                 className="cursor-pointer"
-                // onClick={() => openModal({ type: "editApp", appData })}
+                onClick={() =>
+                  openModal({
+                    type: "editService",
+                    serviceData: data,
+                    userId: user.id,
+                    orgId: user.orgId,
+                  })
+                }
               >
                 <PencilLine />
                 Edit
@@ -131,7 +138,7 @@ export const manageServicesColumn = (
                 onClick={() =>
                   openModal({
                     type: "deleteService",
-                    serviceId,
+                    serviceId: data.id,
                     userId: user.id,
                     orgId: user.orgId,
                   })

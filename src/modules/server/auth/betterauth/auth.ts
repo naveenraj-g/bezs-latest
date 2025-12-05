@@ -294,7 +294,7 @@ export const auth = betterAuth({
       }
         */
 
-      const { roles, organizations } = await getRBAC(user.id);
+      const { roles, organizations, userRBAC } = await getRBAC(user.id);
 
       const updatedUser = userData;
       if (
@@ -337,6 +337,7 @@ export const auth = betterAuth({
         },
         userPreferences,
         roles,
+        userRBAC,
         organizations,
       };
     }),

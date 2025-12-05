@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import {
   CreateDoctorServiceModal,
   DeleteDoctorServiceModal,
+  EditDoctorServiceModal,
 } from "../modals/doctor";
 
 export const DoctorModalProvider = () => {
@@ -19,6 +20,7 @@ export const DoctorModalProvider = () => {
     <>
       <CreateDoctorServiceModal />
       <DeleteDoctorServiceModal />
+      <EditDoctorServiceModal />
     </>
   );
 };

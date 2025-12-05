@@ -10,3 +10,7 @@ export {
   type TDeleteDoctorServiceControllerOutput,
   deleteDoctorServiceController,
 } from "./deleteDoctorService.Controller";
+export {
+  type TUpdateDoctorServiceControllerOutput,
+  updateDoctorServiceController,
+} from "./updateDoctorService.Controller";

@@ -34,7 +34,7 @@ import { Loader2, Stethoscope, Video, CheckCircle2 } from "lucide-react";
 import { useServerAction } from "zsa-react";
 import { FieldGroup } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
-import { useDoctoeModalStore } from "../../stores/doctor-modal-store";
+import { useDoctorModalStore } from "../../stores/doctor-modal-store";
 import { FormInput, FormTextarea } from "@/modules/shared/custom-form-fields";
 import {
   CreateDoctorServiceFormSchema,
@@ -91,11 +91,11 @@ function ModeTile({
 }
 
 export const CreateDoctorServiceModal: React.FC = () => {
-  const closeModal = useDoctoeModalStore((s) => s.onClose);
-  const modalType = useDoctoeModalStore((s) => s.type);
-  const isOpen = useDoctoeModalStore((s) => s.isOpen);
-  const userId = useDoctoeModalStore((s) => s.userId);
-  const orgId = useDoctoeModalStore((s) => s.orgId);
+  const closeModal = useDoctorModalStore((s) => s.onClose);
+  const modalType = useDoctorModalStore((s) => s.type);
+  const isOpen = useDoctorModalStore((s) => s.isOpen);
+  const userId = useDoctorModalStore((s) => s.userId);
+  const orgId = useDoctorModalStore((s) => s.orgId);
 
   const isModalOpen = isOpen && modalType === "addService";
 
@@ -184,7 +184,12 @@ export const CreateDoctorServiceModal: React.FC = () => {
               <FormInput
                 control={form.control}
                 name="name"
-                label="Service Name"
+                label={
+                  <>
+                    Service Name
+                    <span className="text-red-400">*</span>
+                  </>
+                }
                 placeholder="e.g. General Checkup, Cardiac Screening"
               />
 
@@ -195,9 +200,12 @@ export const CreateDoctorServiceModal: React.FC = () => {
                   name="duration"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Duration (Minutes)</FormLabel>
+                      <FormLabel>
+                        Duration (Minutes){" "}
+                        <span className="text-red-400">*</span>
+                      </FormLabel>
                       <FormControl>
-                        <Input type="number" min={1} step={1} {...field} />
+                        <Input type="number" min={5} step={5} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -237,7 +245,7 @@ export const CreateDoctorServiceModal: React.FC = () => {
                         <FormItem className="m-0">
                           <Select onValueChange={field.onChange}>
                             <FormControl>
-                              <SelectTrigger className="w-[110px]">
+                              <SelectTrigger className="md:w-[110px]">
                                 <SelectValue placeholder="Select a Currency" />
                               </SelectTrigger>
                             </FormControl>
@@ -259,7 +267,9 @@ export const CreateDoctorServiceModal: React.FC = () => {
 
               {/* Supported Modes */}
               <FormItem>
-                <FormLabel>Supported Modes</FormLabel>
+                <FormLabel>
+                  Supported Modes <span className="text-red-400">*</span>
+                </FormLabel>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <ModeTile
                     icon={Stethoscope}

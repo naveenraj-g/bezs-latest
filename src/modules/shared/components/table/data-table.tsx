@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -127,7 +127,7 @@ export function DataTable<TData, TValue>({
   view,
   onViewChange,
   cardRender,
-  cardColsClassName = "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+  cardColsClassName = "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5",
 }: DataTableProps<TData, TValue> & DataTableAdditionalType<TData>) {
   const [pageSize, setPageSize] = useState<number>(5);
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -150,6 +150,14 @@ export function DataTable<TData, TValue>({
     onColumnFiltersChange: setColumnFilters,
     state: { sorting, columnFilters },
   });
+
+  const [isMounted, setIsMounted] = useState<boolean>(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) return null;
 
   const handlePageSizeChange = (value: string) => {
     const n = Number(value);

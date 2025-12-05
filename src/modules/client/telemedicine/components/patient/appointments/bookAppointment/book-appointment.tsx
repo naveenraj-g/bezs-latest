@@ -8,9 +8,10 @@ import {
   Clock,
   ChevronLeft,
   Filter,
+  Loader2,
 } from "lucide-react";
-import { DOCTORS, SERVICES, TIME_SLOTS, SPECIALTIES } from "./data";
-import { Doctor, Service } from "./types";
+import { TIME_SLOTS, SPECIALTIES } from "./data";
+import { Doctor, SelectedService } from "./types";
 import { Button } from "@/components/ui/button";
 import { StepIndicator } from "./stepIndicator";
 import { DoctorCard } from "./doctorCard";
@@ -30,8 +31,23 @@ import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ConfirmedAppointmentMessageModal } from "@/modules/client/telemedicine/modals/patient";
 import { usePatientModalStore } from "@/modules/client/telemedicine/stores/patient-modal-store";
+import { TGetDoctorsByOrgOutput } from "@/modules/server/telemedicine/interface-adapters/controllers/doctor";
+import { TSharedUser } from "@/modules/shared/types";
+import type { ZSAError } from "zsa";
+import { toast } from "sonner";
+import { ServiceSelector } from "./ServiceSelector";
+import { useServerAction } from "zsa-react";
+import { bookAppointment } from "@/modules/client/telemedicine/server-actions/appointment-action";
+import { TBookAppointmentValidation } from "@/modules/shared/schemas/telemedicine/appointment/appointmentValidationSchema";
+import { DateScroller } from "../../../DateScroll";
 
-export function BookAppointment() {
+type TProps = {
+  doctorsData: TGetDoctorsByOrgOutput | null;
+  error: ZSAError | null;
+  user: TSharedUser;
+};
+
+export function BookAppointment({ doctorsData, error, user }: TProps) {
   const openModal = usePatientModalStore((state) => state.onOpen);
   const closeModal = usePatientModalStore((state) => state.onClose);
 
@@ -40,7 +56,8 @@ export function BookAppointment() {
 
   // Selection State
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [selectedService, setSelectedService] =
+    useState<SelectedService | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
 
@@ -48,13 +65,71 @@ export function BookAppointment() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSpecialty, setSelectedSpecialty] = useState("All");
 
+  useEffect(() => {
+    if (error) {
+      toast.error("An Error Occurred!", {
+        description: "Unable to load doctors data. Please try again later.",
+      });
+    }
+  }, [error]);
+
+  const { execute, isPending } = useServerAction(bookAppointment, {
+    onSuccess() {
+      toast.success("Appointment booked successfully!");
+    },
+    onError({ err }) {
+      toast.error("An Error Occurred!.", {
+        description: err.message || "Failed to book appointment",
+      });
+    },
+  });
+
+  const computedDoctors = useMemo(() => {
+    if (!doctorsData) return [];
+
+    const newData = doctorsData.map((doctor) => {
+      const {
+        id,
+        fullName,
+        ratingCount,
+        ratingAverage,
+        mobileNumber,
+        services,
+        weeklyAvailabilities,
+        gender,
+      } = doctor;
+      const newDoctor: Doctor = {
+        id,
+        name: fullName,
+        gender,
+        specialty: null,
+        subSpecialty: null,
+        ratingCount,
+        ratingAverage,
+        location: null,
+        mobileNumber,
+        image: null,
+        description: null,
+        available: true,
+        services: services.map((s) => ({
+          ...s,
+          supportedModes: s.supportedModes || [],
+        })),
+        weeklyAvailabilities,
+        reviews: [],
+      };
+      return newDoctor;
+    });
+    return newData;
+  }, [doctorsData]);
+
   // Computed
   const filteredDoctors = useMemo(() => {
-    return DOCTORS.filter((doc) => {
+    return computedDoctors?.filter((doc: Doctor) => {
       const matchesSearch =
         doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         doc.subSpecialty?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        doc.description.toLowerCase().includes(searchQuery.toLowerCase());
+        doc.description?.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesSpecialty =
         selectedSpecialty === "All" || doc.specialty === selectedSpecialty;
       return matchesSearch && matchesSpecialty;
@@ -82,6 +157,14 @@ export function BookAppointment() {
     }).format(date);
   };
 
+  function formatCurrency(amount: number, country: string, currency: string) {
+    return new Intl.NumberFormat(country, {
+      style: "currency",
+      currency,
+      currencyDisplay: "narrowSymbol",
+    }).format(amount);
+  }
+
   const formatFullDate = (date: Date) => {
     return new Intl.DateTimeFormat("en-US", {
       weekday: "long",
@@ -95,13 +178,21 @@ export function BookAppointment() {
   const handleNextStep = () => {
     if (step === 1 && selectedDoctor) {
       // Reset service if doctor specialty changes or just for safety
-      const availableServices = SERVICES[selectedDoctor.specialty] || [];
+      const availableServices = selectedDoctor.services || [];
       if (
         availableServices.length > 0 &&
         (!selectedService ||
           !availableServices.find((s) => s.id === selectedService.id))
       ) {
-        setSelectedService(availableServices[0]);
+        const firstService = availableServices[0];
+        setSelectedService({
+          id: firstService.id,
+          duration: firstService.duration,
+          name: firstService.name,
+          priceAmount: firstService.priceAmount,
+          priceCurrency: firstService.priceCurrency,
+          selectedMode: firstService.supportedModes[0] || "VIRTUAL",
+        });
       }
       setStep(2);
     } else if (step === 2 && selectedDate && selectedTime && selectedService) {
@@ -113,7 +204,33 @@ export function BookAppointment() {
     if (step > 1) setStep(step - 1);
   };
 
-  const handleConfirmBooking = () => {
+  const handleConfirmBooking = async () => {
+    if (
+      !selectedDoctor ||
+      !selectedService ||
+      !selectedDate ||
+      !selectedTime ||
+      !selectedService.name
+    ) {
+      toast.error("Please complete all appointment details before confirming.");
+      return;
+    }
+
+    const data: TBookAppointmentValidation = {
+      patientUserId: user.id,
+      doctorUserId: selectedDoctor?.id,
+      orgId: user.orgId,
+      appointmentDate: selectedDate,
+      time: selectedTime,
+      serviceId: selectedService.id,
+      appointmentMode: selectedService.selectedMode,
+      note: null,
+    };
+
+    const [, bookAppointmentError] = await execute(data);
+
+    if (bookAppointmentError) return;
+
     openModal({ type: "confirmedAppointmentMessage" });
   };
 
@@ -172,11 +289,14 @@ export function BookAppointment() {
                   <SelectValue placeholder="Select a value" />
                 </SelectTrigger>
                 <SelectContent>
-                  {SPECIALTIES.map((s) => (
-                    <SelectItem key={s} value={s}>
-                      {s}
-                    </SelectItem>
-                  ))}
+                  {SPECIALTIES.map(
+                    (s) =>
+                      s && (
+                        <SelectItem key={s} value={s}>
+                          {s}
+                        </SelectItem>
+                      )
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -225,9 +345,9 @@ export function BookAppointment() {
               variant="ghost"
               size="sm"
               onClick={handlePrevStep}
-              className="-ml-2 text-muted-foreground self-start"
+              className="text-muted-foreground self-start"
             >
-              <ChevronLeft className="w-4 h-4 mr-1" /> Back
+              <ChevronLeft className="w-4 h-4" /> Back
             </Button>
             <Button
               variant="badge"
@@ -237,98 +357,57 @@ export function BookAppointment() {
                 Booking with
               </span>
               <Avatar className="h-6 w-6">
-                <AvatarImage src={selectedDoctor.image} />
+                <AvatarImage
+                  src={
+                    selectedDoctor.image ||
+                    "https://picsum.photos/seed/jane/200/200"
+                  }
+                />
                 <AvatarFallback>{selectedDoctor.name[0]}</AvatarFallback>
               </Avatar>
               <span className="text-foreground text-sm font-semibold">
-                {selectedDoctor.name}
+                Dr. {selectedDoctor.name}
               </span>
             </Button>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left: Services */}
-            <div className="lg:col-span-1 space-y-4">
-              <h3 className="font-medium text-sm text-muted-foreground">
-                Appointment Type
-              </h3>
-              <div className="space-y-3">
-                {(SERVICES[selectedDoctor.specialty] || []).map((service) => (
-                  <Card
-                    key={service.id}
-                    onClick={() => setSelectedService(service)}
-                    className={`p-4 rounded-lg border cursor-pointer hover:shadow-md transition-all flex flex-row justify-between items-center ${
-                      selectedService?.id === service.id
-                        ? "border-primary bg-primary/5 shadow-md"
-                        : "hover:border-primary/50 border-border"
-                    }`}
-                  >
-                    <div>
-                      <div className="font-medium text-sm">{service.name}</div>
-                      <div className="text-xs text-muted-foreground mt-1">
-                        {service.duration} min
-                      </div>
-                    </div>
-                    <div className="text-primary font-mono font-semibold">
-                      ${service.price}
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            </div>
+            <ServiceSelector
+              formatCurrency={formatCurrency}
+              selectedServiceId={selectedService?.id || null}
+              services={selectedDoctor?.services}
+              onSelect={(service: SelectedService) =>
+                setSelectedService(service)
+              }
+            />
 
             {/* Right: Date & Time */}
-            <div className="lg:col-span-2 space-y-8">
+            <Card className="lg:col-span-2 space-y-8 py-4 px-4 h-fit">
               {/* Date Scroller */}
-              <div>
-                <h3 className="font-semibold mb-4">
+              <div className="mb-0">
+                <h3 className="font-semibold text-muted-foreground text-sm mb-4">
                   Available Dates{" "}
                   {selectedDate ? `(${selectedDate.toDateString()})` : null}
                 </h3>
-                <div className="relative group">
-                  <div className="overflow-x-auto pb-4 flex gap-3 snap-x px-1">
-                    {calendarDates.map((date, idx) => {
-                      const isSelected =
-                        selectedDate?.toDateString() === date.toDateString();
-                      const isToday =
-                        new Date().toDateString() === date.toDateString();
-
-                      return (
-                        <Button
-                          variant={isSelected ? "default" : "outline"}
-                          key={idx}
-                          onClick={() => setSelectedDate(date)}
-                          className={`flex-shrink-0 h-fit snap-start w-28 p-3 rounded-lg border flex flex-col items-center justify-center gap-1 transition-all`}
-                        >
-                          <span className={`text-xs uppercase`}>
-                            {isToday
-                              ? "Today"
-                              : date.toLocaleDateString("en-US", {
-                                  weekday: "short",
-                                })}
-                          </span>
-                          <span className={`text-lg`}>
-                            {date.toLocaleDateString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                            })}
-                          </span>
-                        </Button>
-                      );
-                    })}
-                  </div>
-                </div>
+                <DateScroller
+                  dates={calendarDates}
+                  onSelect={setSelectedDate}
+                  selectedDate={selectedDate}
+                />
               </div>
 
               {/* Time Grid */}
               <div
-                className={`transition-opacity duration-300 ${
+                className={`transition-opacity duration-300 mb-0 ${
                   !selectedDate
                     ? "opacity-50 pointer-events-none grayscale"
                     : "opacity-100"
                 }`}
               >
-                <h3 className="font-semibold mb-4">Available Times</h3>
+                <h3 className="font-semibold mb-4 text-muted-foreground text-sm">
+                  Available Times
+                </h3>
                 <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
                   {TIME_SLOTS.map((time, idx) => {
                     const isBooked = idx % 5 === 3; // Mock booked slots
@@ -351,7 +430,7 @@ export function BookAppointment() {
                   })}
                 </div>
               </div>
-            </div>
+            </Card>
           </div>
         </div>
       )}
@@ -364,13 +443,8 @@ export function BookAppointment() {
         selectedTime && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="mb-6">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handlePrevStep}
-                className="-ml-2"
-              >
-                <ChevronLeft className="w-4 h-4 mr-1" /> Back
+              <Button variant="ghost" size="sm" onClick={handlePrevStep}>
+                <ChevronLeft className="w-4 h-4" /> Back
               </Button>
             </div>
 
@@ -382,7 +456,10 @@ export function BookAppointment() {
               {/* Header of Card */}
               <div className="p-6 border-b flex items-center gap-4">
                 <img
-                  src={selectedDoctor.image}
+                  src={
+                    selectedDoctor.image ||
+                    "https://picsum.photos/seed/jane/200/200"
+                  }
                   className="w-16 h-16 rounded-full object-cover border-2 border-zinc-700"
                   alt={selectedDoctor.name}
                 />
@@ -431,16 +508,23 @@ export function BookAppointment() {
                   <div className="flex items-start gap-2">
                     <MapPin className="w-4 h-4 text-muted-foreground mt-1" />
                     <p className="font-medium text-muted-foreground">
-                      {selectedDoctor.location}
+                      {selectedDoctor.location || "Dental Center, New York"}
                     </p>
                   </div>
                 </div>
-                <div>
-                  <p className="text-sm mb-1">Total Cost</p>
-                  <p className="text-2xl font-bold text-primary">
-                    ${selectedService.price}
-                  </p>
-                </div>
+                {selectedService.priceAmount &&
+                  selectedService.priceCurrency && (
+                    <div>
+                      <p className="text-sm mb-1">Total Cost</p>
+                      <p className="text-2xl font-bold text-primary">
+                        {formatCurrency(
+                          selectedService.priceAmount,
+                          "en-US",
+                          selectedService.priceCurrency
+                        )}
+                      </p>
+                    </div>
+                  )}
               </div>
             </Card>
 
@@ -448,7 +532,12 @@ export function BookAppointment() {
               <Button variant="outline" size="sm" onClick={handlePrevStep}>
                 Modify Appointment
               </Button>
-              <Button size="sm" onClick={handleConfirmBooking}>
+              <Button
+                size="sm"
+                onClick={handleConfirmBooking}
+                disabled={isPending}
+              >
+                {isPending && <Loader2 className="animate-spin" />}
                 Confirm Booking
               </Button>
             </div>

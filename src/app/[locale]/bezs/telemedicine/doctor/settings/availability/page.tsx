@@ -1,9 +1,30 @@
 import DefaultWeeklyAvailability from "@/modules/client/telemedicine/components/doctor/availability/doctorWeeklyAvailability";
+import { getDoctorWeeklyAvailability } from "@/modules/client/telemedicine/server-actions/doctorWeeklyAvailability-action";
+import { getServerSession } from "@/modules/server/auth/betterauth/auth-server";
 
-function DoctorAvailabilitySettings() {
+async function DoctorAvailabilitySettings() {
+  const session = await getServerSession();
+
+  if (!session || !session.user.currentOrgId) {
+    throw new Error("UNAUTHORIZED");
+  }
+
+  const user = {
+    id: session.user.id,
+    name: session.user.name,
+    username: session.user.username,
+    email: session.user.email,
+    orgId: session.user?.currentOrgId,
+  };
+
+  const [data, error] = await getDoctorWeeklyAvailability({
+    orgId: user.orgId,
+    userId: user.id,
+  });
+
   return (
     <div>
-      <DefaultWeeklyAvailability />
+      <DefaultWeeklyAvailability data={data} user={user} error={error} />
     </div>
   );
 }

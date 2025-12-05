@@ -1,50 +1,121 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DayRow } from "./dayRow";
 import { Button } from "@/components/ui/button";
 import { DaySchedule } from "../../../types/doctor-availability";
 import { generateId } from "../../../utils";
-import { Save, CalendarClock, Info, Copy } from "lucide-react";
+import { Save, CalendarClock, Info, Copy, Loader2 } from "lucide-react";
+import { TGetDoctorWeeklyAvailabilityControllerOutput } from "@/modules/server/telemedicine/interface-adapters/controllers/doctorWeeklyAvailability";
+import { TSharedUser } from "@/modules/shared/types";
+import type { ZSAError } from "zsa";
+import { toast } from "sonner";
+import { useServerAction } from "zsa-react";
+import { upsertDoctorWeeklyAvailability } from "../../../server-actions/doctorWeeklyAvailability-action";
+import { TUpsertFullWeekValidation } from "@/modules/shared/schemas/telemedicine/doctorWeeklyAvailability/doctorWeeklyAvailabilityValidationSchema";
+
+const DAY_ORDER = [
+  "SUNDAY",
+  "MONDAY",
+  "TUESDAY",
+  "WEDNESDAY",
+  "THURSDAY",
+  "FRIDAY",
+  "SATURDAY",
+];
 
 const INITIAL_SCHEDULE: DaySchedule[] = [
-  { id: "sunday", label: "Sunday", isEnabled: false, slots: [] },
+  { id: "sunday", label: "SUNDAY", isEnabled: false, slots: [] },
   {
     id: "monday",
-    label: "Monday",
-    isEnabled: true,
-    slots: [{ id: "1", start: "09:00", end: "17:00" }],
+    label: "MONDAY",
+    isEnabled: false,
+    slots: [],
   },
   {
     id: "tuesday",
-    label: "Tuesday",
-    isEnabled: true,
-    slots: [{ id: "2", start: "09:00", end: "17:00" }],
+    label: "TUESDAY",
+    isEnabled: false,
+    slots: [],
   },
   {
     id: "wednesday",
-    label: "Wednesday",
-    isEnabled: true,
-    slots: [{ id: "3", start: "09:00", end: "17:00" }],
+    label: "WEDNESDAY",
+    isEnabled: false,
+    slots: [],
   },
   {
     id: "thursday",
-    label: "Thursday",
-    isEnabled: true,
-    slots: [{ id: "4", start: "09:00", end: "17:00" }],
+    label: "THURSDAY",
+    isEnabled: false,
+    slots: [],
   },
   {
     id: "friday",
-    label: "Friday",
-    isEnabled: true,
-    slots: [{ id: "5", start: "09:00", end: "15:00" }],
+    label: "FRIDAY",
+    isEnabled: false,
+    slots: [],
   },
-  { id: "saturday", label: "Saturday", isEnabled: false, slots: [] },
+  { id: "saturday", label: "SATURDAY", isEnabled: false, slots: [] },
 ];
 
-export default function DefaultWeeklyAvailability() {
-  const [schedule, setSchedule] = useState<DaySchedule[]>(INITIAL_SCHEDULE);
-  const [isSaving, setIsSaving] = useState(false);
+type TProps = {
+  data: TGetDoctorWeeklyAvailabilityControllerOutput | null;
+  error: ZSAError | null;
+  user: TSharedUser;
+};
+
+export default function DefaultWeeklyAvailability({
+  data,
+  user,
+  error,
+}: TProps) {
+  const availableData = data
+    ?.map((d) => {
+      return {
+        id: d.id,
+        label: d.dayOfWeek,
+        isEnabled: d.isEnabled,
+        slots: d.slots.map((s) => {
+          return {
+            id: s.id,
+            start: s.start,
+            end: s.end,
+          };
+        }),
+      };
+    })
+    .sort(
+      (a, b) =>
+        DAY_ORDER.indexOf(a.label.toUpperCase()) -
+        DAY_ORDER.indexOf(b.label.toUpperCase())
+    );
+
+  const [schedule, setSchedule] = useState<DaySchedule[]>(
+    (!!availableData?.length && availableData) || INITIAL_SCHEDULE
+  );
+
+  useEffect(() => {
+    if (error) {
+      toast.error("An Error Occurred!", {
+        description: error.message || "Failed to get data",
+      });
+    }
+  }, [error]);
+
+  const { execute, isPending } = useServerAction(
+    upsertDoctorWeeklyAvailability,
+    {
+      onSuccess() {
+        toast.success("Availability saved successfully!");
+      },
+      onError({ err }) {
+        toast.error("An Error Occurred!", {
+          description: err.message || "Failed to save data",
+        });
+      },
+    }
+  );
 
   const handleUpdateDay = (updatedDay: DaySchedule) => {
     setSchedule((prev) =>
@@ -79,13 +150,27 @@ export default function DefaultWeeklyAvailability() {
     }
   };
 
-  const handleSave = () => {
-    setIsSaving(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsSaving(false);
-      alert("Availability saved successfully!");
-    }, 1000);
+  const handleSave = async () => {
+    const payload = schedule.map((d) => {
+      return {
+        dayOfWeek: d.label,
+        isEnabled: d.isEnabled,
+        slots: d.slots.map((s) => {
+          return {
+            start: s.start,
+            end: s.end,
+          };
+        }),
+      };
+    });
+
+    const data = {
+      orgId: user.orgId,
+      userId: user.id,
+      payload,
+    };
+
+    await execute(data as TUpsertFullWeekValidation);
   };
 
   // Calculate stats for the header
@@ -152,17 +237,15 @@ export default function DefaultWeeklyAvailability() {
             </span>
             <Button
               onClick={handleSave}
-              disabled={isSaving}
+              disabled={isPending}
               className="w-full sm:w-auto"
             >
-              {isSaving ? (
-                <>Saving...</>
+              {isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <>
-                  <Save className="h-4 w-4" />
-                  Save Schedule
-                </>
+                <Save className="h-4 w-4" />
               )}
+              Save Schedule
             </Button>
           </div>
         </div>

@@ -33,7 +33,7 @@ export const DoctorCard = ({
         {/* Avatar */}
         <div className="flex-shrink-0">
           <img
-            src={doctor.image}
+            src={doctor.image || "https://picsum.photos/seed/jane/200/200"}
             alt={doctor.name}
             className="w-20 h-20 rounded-full object-cover border"
           />
@@ -45,7 +45,7 @@ export const DoctorCard = ({
             <div>
               <h3 className="text-lg font-semibold">{doctor.name}</h3>
               <p className="text-muted-foreground font-medium text-sm">
-                {doctor.subSpecialty || doctor.specialty}
+                {doctor.subSpecialty || doctor.specialty || "Dentist"}
               </p>
             </div>
           </div>
@@ -53,9 +53,9 @@ export const DoctorCard = ({
           <div className="flex items-center flex-wrap gap-x-4 gap-y-2 text-sm">
             <div className="flex items-center gap-1 text-yellow-500">
               <Star className="w-4 h-4 fill-current" />
-              <span className="font-bold">{doctor.rating}</span>
+              <span className="font-bold">{doctor.ratingAverage}</span>
               <span className="text-muted-foreground">
-                ({doctor.reviews.length} reviews)
+                ({doctor.ratingCount} reviews)
               </span>
             </div>
 
@@ -76,16 +76,17 @@ export const DoctorCard = ({
           <div className="grid gap-1 text-sm text-muted-foreground mt-2">
             <div className="flex items-center gap-2">
               <MapPin className="w-3.5 h-3.5" />
-              {doctor.location}
+              {doctor.location || "Dental Center, New York"}
             </div>
             <div className="flex items-center gap-2">
               <Phone className="w-3.5 h-3.5" />
-              {doctor.phone}
+              {doctor.mobileNumber}
             </div>
           </div>
 
           <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-            {doctor.description}
+            {doctor.description ||
+              "Experienced dental professional providing top-quality care with a gentle touch."}
           </p>
         </div>
       </div>

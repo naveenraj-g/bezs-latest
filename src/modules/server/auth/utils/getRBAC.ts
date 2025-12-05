@@ -64,8 +64,6 @@ export async function getRBAC(userId: string) {
       const orgApp = rbacData.organization.appOrganization.map((app) => app);
       const roleAppMenuItems = rbacData.role.menuPermission;
 
-      // const testData = orgApp.reduce((acc, app) => {}, {});
-
       return {
         ...acc,
         organizations: [
@@ -91,6 +89,7 @@ export async function getRBAC(userId: string) {
   );
 
   return {
+    userRBAC: rbac,
     roles: data.roles,
     organizations: data.organizations,
   };

@@ -8,19 +8,21 @@ export async function getAppointmentsForPatientUseCase(
   const appointmentRepository = getTelemedicineInjection(
     "IAppointmentRepository"
   );
-  const patientProfileRepository = getTelemedicineInjection(
-    "IPatientProfileRepository"
+  const idResolverRepository = getTelemedicineInjection(
+    "IIdResolverRepository"
   );
 
-  const patientProfile =
-    await patientProfileRepository.getPatientWithPersonalProfile(orgId, userId);
+  const patientId = await idResolverRepository.resolvePatientIdByUserIdAndOrgId(
+    userId,
+    orgId
+  );
 
-  if (!patientProfile) {
+  if (!patientId) {
     throw new Error("Patient not found");
   }
 
   const data = await appointmentRepository.getAppointmentsForPatient(
-    patientProfile.id,
+    patientId,
     orgId
   );
 

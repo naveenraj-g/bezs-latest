@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useDoctoeModalStore } from "@/modules/client/telemedicine/stores/doctor-modal-store";
+import { useDoctorModalStore } from "@/modules/client/telemedicine/stores/doctor-modal-store";
 import { TService } from "@/modules/shared/entities/models/telemedicine/service";
 import { TSharedUser } from "@/modules/shared/types";
 import type { Row } from "@tanstack/react-table";
@@ -28,7 +28,7 @@ type TServiceCardProps = {
 };
 
 function ServicesCard({ row, user }: TServiceCardProps) {
-  const openModal = useDoctoeModalStore((state) => state.onOpen);
+  const openModal = useDoctorModalStore((state) => state.onOpen);
   const data = row.original;
 
   return (
@@ -56,7 +56,14 @@ function ServicesCard({ row, user }: TServiceCardProps) {
             <DropdownMenuContent align="start" side="left">
               <DropdownMenuItem
                 className="cursor-pointer"
-                // onClick={}
+                onClick={() =>
+                  openModal({
+                    type: "editService",
+                    serviceData: data,
+                    userId: user.id,
+                    orgId: user.orgId,
+                  })
+                }
               >
                 <PencilLine />
                 Edit

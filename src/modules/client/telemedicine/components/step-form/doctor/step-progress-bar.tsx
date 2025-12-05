@@ -78,7 +78,7 @@ export function StepProgressBar({
                   <div className="mb-1 rounded-full p-1">
                     {isCompleted ? (
                       <div className="bg-primary rounded-full p-1">
-                        <Check className="w-6 h-6 text-success text-accent" />
+                        <Check className="w-6 h-6 text-accent" />
                       </div>
                     ) : (
                       <div

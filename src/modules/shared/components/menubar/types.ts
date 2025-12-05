@@ -13,7 +13,7 @@ type Team = {
 type BaseNavItem = {
   title: string;
   badge?: string;
-  icon?: React.ElementType;
+  icon?: any;
 };
 
 type NavLink = BaseNavItem & {

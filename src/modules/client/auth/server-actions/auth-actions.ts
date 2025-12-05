@@ -5,13 +5,14 @@ import { createServerAction, ZSAError } from "zsa";
 import { signInWithEmailController } from "@/modules/server/auth/interface-adapters/controllers/auth/signInWithEmail.controller";
 import { InputParseError } from "@/modules/shared/entities/errors/commonError";
 import { AuthenticationError } from "@/modules/shared/entities/errors/authError";
-import { redirect } from "next/navigation";
+import { redirect } from "@/i18n/navigation";
 import { send2FaOTPController } from "../../../server/auth/interface-adapters/controllers/auth/send2FaOTP.controller";
 import { signOutController } from "../../../server/auth/interface-adapters/controllers/auth/signOut.controller";
 import { signInWithUsernameController } from "../../../server/auth/interface-adapters/controllers/auth/signInWithUsername.controller";
 import { signInWithKeycloakGenericOAuthController } from "../../../server/auth/interface-adapters/controllers/auth/signInWithKeycloakGenericOAuth.controller";
 import { signInController } from "../../../server/auth/interface-adapters/controllers/auth/signIn.controller";
 import { getServerSession } from "../../../server/auth/betterauth/auth-server";
+import { getLocale } from "next-intl/server";
 
 const signInWithEmailSchema = z.object({
   email: z.string().email(),
@@ -51,6 +52,7 @@ const signInSchema = z.object({
 export const signIn = createServerAction()
   .input(signInSchema, { skipInputParsing: true })
   .handler(async ({ input }) => {
+    const locale = await getLocale();
     let redirectUrl: string | null = null;
 
     try {
@@ -75,7 +77,7 @@ export const signIn = createServerAction()
     }
 
     if (redirectUrl) {
-      redirect(redirectUrl);
+      redirect({ href: redirectUrl, locale });
     }
   });
 

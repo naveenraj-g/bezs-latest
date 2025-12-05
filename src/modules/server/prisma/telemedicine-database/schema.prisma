@@ -44,14 +44,32 @@ enum AbnormalFlag {
 enum AppointmentStatus {
     PENDING
     SCHEDULED
+    RESCHEDULED
     CANCELLED
     COMPLETED
-    INPROGRESS
 }
 
 enum AppointmentMode {
     VIRTUAL
     INPERSON
+}
+
+enum DayOfWeek {
+    SUNDAY
+    MONDAY
+    TUESDAY
+    WEDNESDAY
+    THURSDAY
+    FRIDAY
+    SATURDAY
+}
+
+enum ReviewStatus {
+    PENDING // awaiting moderation
+    PUBLISHED // visible publicly
+    HIDDEN // hidden by admin/mod
+    REPORTED // flagged by users
+    DELETED // soft-deleted (kept for audit)
 }
 
 // ───────────────────────────
@@ -71,12 +89,18 @@ model Doctor {
     isCompleted         Boolean @default(false)
     isABDMDoctorProfile Boolean @default(false)
 
-    personal      DoctorPersonalDetail?
-    qualification DoctorQualification?
-    workDetail    DoctorWorkDetail?
-    concent       DoctorConcent?
-    appointments  Appointment[]
-    services      Service[]
+    personal             DoctorPersonalDetail?
+    qualification        DoctorQualification?
+    workDetail           DoctorWorkDetail?
+    concent              DoctorConcent?
+    appointments         Appointment[]
+    services             Service[]
+    weeklyAvailabilities WeeklyAvailability[]
+    reviews              Review[]
+    authoredReplies      ReviewReply[]
+
+    ratingAverage Float? @default(0)
+    ratingCount   Int    @default(0)
 
     createdBy String?
     updatedBy String?
@@ -348,6 +372,39 @@ model Service {
     @@unique([orgId, doctorId, name])
 }
 
+model WeeklyAvailability {
+    id        String  @id @default(uuid())
+    orgId     String
+    dayOfWeek String
+    isEnabled Boolean @default(false)
+
+    doctorId String
+    doctor   Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+    slots AvailabilitySlot[]
+
+    createdBy String?
+    updatedBy String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@unique([orgId, doctorId, dayOfWeek])
+}
+
+model AvailabilitySlot {
+    id                   String             @id @default(uuid())
+    orgId                String
+    start                String
+    end                  String
+    weeklyAvailabilityId String
+    weeklyAvailability   WeeklyAvailability @relation(fields: [weeklyAvailabilityId], references: [id], onDelete: Cascade)
+
+    createdBy String?
+    updatedBy String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
 ////////////////////////////////////////////////////////////
 
 // -----------------------------
@@ -371,6 +428,7 @@ model Patient {
     vitals         Vital[]
     lifestyle      Lifestyle?
     appointments   Appointment[]
+    reviews        Review[]
 
     createdBy String?
     updatedBy String?
@@ -531,8 +589,14 @@ model Lifestyle {
 // -----------------------------
 // Appointment
 // -----------------------------
+
+enum CancelledBy {
+    PATIENT
+    DOCTOR
+}
+
 model Appointment {
-    id              Int               @id @default(autoincrement())
+    id              String            @id @default(uuid())
     patientId       String
     doctorId        String
     orgId           String
@@ -540,17 +604,166 @@ model Appointment {
     time            String
     status          AppointmentStatus @default(PENDING)
     type            String
-    price           String
+    price           Float?
+    priceCurrency   String?
     note            String?
     appointmentMode AppointmentMode
     virtualRoomId   String?           @unique
+    cancelReason    String?
+    cancelledBy     CancelledBy?
+
+    // per-participant visibility
+    isPatientDeleted Boolean @default(false)
+    isDoctorDeleted  Boolean @default(false)
 
     patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
     doctor  Doctor  @relation(fields: [doctorId], references: [id], onDelete: Cascade)
 
-    reason       String?
-    conversation Json?
-    report       Json?
-    created_at   DateTime @default(now())
-    updated_at   DateTime @updatedAt
+    review            Review?
+    appointmentAudits AppointmentAudit[]
+    appointmentActual AppointmentActual?
+
+    createdBy String?
+    updatedBy String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@unique([id, orgId], name: "appointment_id_orgId_unique")
+    @@index([orgId, patientId, isPatientDeleted, appointmentDate])
+    @@index([orgId, doctorId, isDoctorDeleted, appointmentDate])
+}
+
+model AppointmentActual {
+    id            Int    @id @default(autoincrement())
+    orgId         String
+    appointmentId String @unique
+
+    intakeConversation  Json?
+    intakeReport        Json?
+    virtualConversation Json?
+
+    appointment Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
+    createdBy String?
+    updatedBy String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+enum AppointmentEventKind {
+    RESCHEDULED
+    CANCELLED
+    DELETED
+    SCHEDULED
+}
+
+enum AppointmentActorType {
+    PATIENT
+    DOCTOR
+    STAFF
+    SYSTEM
+}
+
+model AppointmentAudit {
+    id            Int         @id @default(autoincrement())
+    orgId         String
+    appointmentId String
+    appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
+    kind      AppointmentEventKind // RESCHEDULED | CANCELLED
+    actorType AppointmentActorType // who did it
+    actorId   String? // optional user id of actor
+    reason    String? // free text reason
+
+    // only used for RESCHEDULED
+    fromDate DateTime?
+    fromTime String?
+    toDate   DateTime?
+    toTime   String?
+
+    createdBy String?
+    createdAt DateTime @default(now())
+
+    @@index([appointmentId, createdAt])
+}
+
+// ───────────────────────────
+// Doctor Reviews
+// ───────────────────────────
+model Review {
+    id    String @id @default(uuid())
+    orgId String
+
+    doctorId String
+    doctor   Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+    patientId String
+    patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+    // Optional, but recommended if the review is tied to a specific visit
+    appointmentId String?      @unique
+    appointment   Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+
+    rating      Int // enforce 1..5 in app/service layer (DB CHECK not portable in Prisma)
+    title       String?
+    comment     String?
+    isAnonymous Boolean @default(false)
+
+    status         ReviewStatus @default(PUBLISHED)
+    reportedReason String?
+
+    // Basic engagement signals (optional)
+    helpfulCount Int @default(0)
+
+    // One optional reply from the doctor/clinic
+    reply ReviewReply[]
+
+    createdBy String?
+    updatedBy String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    // Uncomment one of the following depending on your policy:
+
+    // 1) One review per (patient, doctor) across all time:
+    // @@unique([patientId, doctorId])
+
+    // 2) One review per (patient, doctor, appointment) – already enforced via unique appointmentId
+    // leave as-is if you want multiple reviews across different appointments
+
+    @@index([orgId, doctorId, status])
+}
+
+enum ReviewAuthorRole {
+    DOCTOR
+    ADMIN
+}
+
+model ReviewReply {
+    id    String @id @default(uuid())
+    orgId String
+
+    reviewId String
+    review   Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+    // who replied
+    authorRole   ReviewAuthorRole
+    authorUserId String // the userId who posted the reply (doctor user or admin user)
+
+    // optional fast path to doctor profile (null for admin replies)
+    authorDoctorId String?
+    authorDoctor   Doctor? @relation(fields: [authorDoctorId], references: [id], onDelete: SetNull)
+
+    message String
+
+    createdBy String?
+    updatedBy String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // OPTIONAL: enforce at most one reply per role per review:
+    // @@unique([reviewId, authorRole])
+
+    @@index([reviewId])
+    @@index([authorRole])
+    @@index([authorDoctorId])
 }

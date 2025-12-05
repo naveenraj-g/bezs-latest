@@ -25,7 +25,9 @@ export default function Error({
       <div className="p-32 min-h-screen min-w-screen flex flex-col items-center justify-center">
         <h2>Something went wrong!</h2>
         <p>Error reason: {error.message}</p>
-        <Button onClick={() => reset()}>Try again</Button>
+        <Button onClick={() => reset()} className="mt-2">
+          Try again
+        </Button>
       </div>
     </div>
   );

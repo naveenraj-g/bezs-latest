@@ -1,6 +1,8 @@
+import bezsConfig from "../../../../../bezs.json";
+
 export function getAuthProvider() {
   const mode =
-    (process.env.AUTH_PROVIDER as "betterauth" | "keycloak") || "betterauth";
+    (bezsConfig?.authProvider as "betterauth" | "keycloak") || "betterauth";
 
   const isKeycloak = mode === "keycloak";
 

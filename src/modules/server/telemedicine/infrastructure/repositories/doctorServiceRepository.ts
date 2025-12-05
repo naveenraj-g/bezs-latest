@@ -130,6 +130,66 @@ export class DoctorServiceRepository implements IDoctorServiceRepository {
     }
   }
 
+  async getDoctorServiceByIds(
+    serviceId: string,
+    doctorId: string,
+    orgId: string
+  ): Promise<TService> {
+    const startTimeMs = Date.now();
+    const operationId = randomUUID();
+
+    // Start log
+    logOperation("start", {
+      name: "getServiceRepository",
+      startTimeMs,
+      context: {
+        operationId,
+      },
+    });
+
+    try {
+      const service = await prismaTelemedicine.service.findUnique({
+        where: {
+          id: serviceId,
+          doctorId,
+          orgId,
+        },
+      });
+
+      const data = await ServiceSchema.parseAsync(service);
+
+      // Success log
+      logOperation("success", {
+        name: "getServiceRepository",
+        startTimeMs,
+        context: {
+          operationId,
+        },
+      });
+
+      return data;
+    } catch (error) {
+      // Error log
+      logOperation("error", {
+        name: "getServiceRepository",
+        startTimeMs,
+        err: error,
+        errName: "UnknownRepositoryError",
+        context: {
+          operationId,
+        },
+      });
+
+      if (error instanceof Error) {
+        throw new OperationError(error.message, { cause: error });
+      }
+
+      throw new OperationError("An unexpected error occurred", {
+        cause: error,
+      });
+    }
+  }
+
   async updateDoctorService(data: TServiceUpdate): Promise<TService> {
     const startTimeMs = Date.now();
     const operationId = randomUUID();

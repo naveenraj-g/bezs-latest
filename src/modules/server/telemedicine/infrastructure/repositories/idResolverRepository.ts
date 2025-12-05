@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import { IIdResolverRepository } from "../../application/repositories/iDResolverRepository.interface";
+import { IIdResolverRepository } from "../../application/repositories/idResolverRepository.interface";
 import { OperationError } from "../../../../shared/entities/errors/commonError";
 import { prismaTelemedicine } from "../../../prisma/prisma";
 import { randomUUID } from "crypto";
@@ -68,6 +68,87 @@ export class IdResolverRepository implements IIdResolverRepository {
       });
 
       return doctorId.id;
+    } catch (error) {
+      // Error log
+      logOperation("error", {
+        name: "resolveDoctorIdByUserIdAndOrgIdRepository",
+        startTimeMs,
+        err: error,
+        errName: "UnknownRepositoryError",
+        context: {
+          operationId,
+        },
+      });
+
+      if (error instanceof Error) {
+        throw new OperationError(error.message, { cause: error });
+      }
+
+      throw new OperationError("An unexpected error occurred", {
+        cause: error,
+      });
+    }
+  }
+
+  async resolvePatientIdByUserIdAndOrgId(
+    userId: string,
+    orgId: string
+  ): Promise<string | null> {
+    const startTimeMs = Date.now();
+    const operationId = randomUUID();
+
+    // Start log
+    logOperation("start", {
+      name: "resolvePatientIdByUserIdAndOrgIdRepository",
+      startTimeMs,
+      context: {
+        operationId,
+      },
+    });
+
+    try {
+      // guard: both must be present and non-empty
+      if (!userId || !orgId) {
+        logOperation("success", {
+          name: "resolvePatientIdByUserIdAndOrgIdRepository",
+          startTimeMs,
+          context: { operationId, reason: "empty-ids", found: false },
+        });
+        return null;
+      }
+
+      const patientId = await prismaTelemedicine.patient.findUnique({
+        where: {
+          orgId_userId: {
+            orgId,
+            userId,
+          },
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!patientId) {
+        logOperation("success", {
+          name: "resolvePatientIdByUserIdAndOrgIdRepository",
+          startTimeMs,
+          context: { operationId, reason: "not-found", found: false },
+        });
+        return null;
+      }
+
+      // Success log
+      logOperation("success", {
+        name: "resolvePatientIdByUserIdAndOrgIdRepository",
+        startTimeMs,
+        context: {
+          operationId,
+          found: true,
+        },
+      });
+
+      return patientId.id;
     } catch (error) {
       // Error log
       logOperation("error", {

@@ -6,26 +6,51 @@ export interface Review {
   comment: string;
 }
 
-export interface Doctor {
-  id: string;
-  name: string;
-  specialty: string; // e.g., "Dentist", "Cardiologist"
-  subSpecialty?: string; // e.g., "Root Canal Expert"
-  rating: number;
-  location: string;
-  phone: string;
-  image: string;
-  description: string;
-  available: boolean;
-  reviews: Review[];
-}
-
 export interface Service {
   id: string;
   name: string;
-  duration: number; // in minutes
-  price: number;
+  duration: number;
+  priceAmount: number | null;
+  priceCurrency: string | null;
   supportedModes: ("VIRTUAL" | "INPERSON")[];
+}
+
+export interface SelectedService {
+  id: string;
+  name: string;
+  duration: number;
+  priceAmount: number | null;
+  priceCurrency: string | null;
+  selectedMode: "VIRTUAL" | "INPERSON";
+}
+
+export interface weeklyAvailability {
+  id: string;
+  dayOfWeek: string;
+  isEnabled: boolean;
+  slots: {
+    id: string;
+    start: string;
+    end: string;
+  }[];
+}
+
+export interface Doctor {
+  id: string;
+  name: string;
+  specialty: string | null;
+  subSpecialty: string | null;
+  ratingCount: number | null;
+  gender?: string | null;
+  ratingAverage: number | null;
+  location: string | null;
+  mobileNumber?: string | null;
+  image: string | null;
+  description: string | null;
+  available: boolean;
+  reviews: Record<string, any>[];
+  services: Service[];
+  weeklyAvailabilities: weeklyAvailability[];
 }
 
 export interface TimeSlot {

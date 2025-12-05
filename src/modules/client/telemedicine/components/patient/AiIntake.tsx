@@ -9,6 +9,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Vapi from "@vapi-ai/web";
 import { toast } from "sonner";
 import { nanoid } from "nanoid";
+import { useIntakeStore } from "../../stores/intake-store";
 
 interface TProps {
   user: {
@@ -43,6 +44,8 @@ type TMessageItem = {
 };
 
 function AiIntake({ user, appointmentData }: TProps) {
+  const setConversation = useIntakeStore((state) => state.setConversation);
+
   const [callStarted, setCallStarted] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [vapiInstance, setVapiInstance] = useState<Vapi | null>(null);
@@ -207,6 +210,7 @@ function AiIntake({ user, appointmentData }: TProps) {
 
       // optionally: generate report or save messages here
       toast.success("Call ended");
+      setConversation(messages);
 
       console.log({ messages });
     } catch (err) {

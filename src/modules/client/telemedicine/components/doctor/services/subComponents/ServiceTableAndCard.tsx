@@ -2,12 +2,12 @@
 
 import DataTable from "@/modules/shared/components/table/data-table";
 import { manageServicesColumn } from "./servicesColumn";
-import { useDoctoeModalStore } from "@/modules/client/telemedicine/stores/doctor-modal-store";
+import { useDoctorModalStore } from "@/modules/client/telemedicine/stores/doctor-modal-store";
 import { IServiceProps } from "../types";
 import ServicesCard from "./ServicesCard";
 
 function ServiceTableAndCard({ services, error, user }: IServiceProps) {
-  const openModal = useDoctoeModalStore((state) => state.onOpen);
+  const openModal = useDoctorModalStore((state) => state.onOpen);
 
   return (
     <DataTable

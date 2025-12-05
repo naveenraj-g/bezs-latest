@@ -24,7 +24,7 @@ const formatFullDate = (date: Date) => {
   }).format(date);
 };
 
-export const ConfirmedAppointmentMessageModal = ({
+const ConfirmedAppointmentMessageModal = ({
   data,
   resetAction,
 }: {
@@ -135,3 +135,5 @@ export const ConfirmedAppointmentMessageModal = ({
     </Dialog>
   );
 };
+
+export { ConfirmedAppointmentMessageModal };

@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarMenuButton, useSidebar } from "@/components/ui/sidebar";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { signOut } from "@/modules/client/auth/server-actions/auth-actions";
 import { ThemeSwitcher } from "@/theme/theme-switcher";
@@ -22,7 +22,6 @@ import {
   LogOut,
   Settings2,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useServerAction } from "zsa-react";
 
@@ -165,6 +164,7 @@ export function NavUser({
           <DropdownMenuItem
             className="flex items-center gap-2 cursor-pointer"
             onClick={handleLogout}
+            onMouseEnter={() => router.prefetch("/")}
           >
             <LogOut className="!h-[1.2rem] !w-[1.2rem] dark:text-white" />
             <p>Logout</p>

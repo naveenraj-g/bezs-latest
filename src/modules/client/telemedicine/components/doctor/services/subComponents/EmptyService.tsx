@@ -11,10 +11,10 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { TSharedUser } from "@/modules/shared/types";
-import { useDoctoeModalStore } from "@/modules/client/telemedicine/stores/doctor-modal-store";
+import { useDoctorModalStore } from "@/modules/client/telemedicine/stores/doctor-modal-store";
 
 export function EmptyService({ user }: { user: TSharedUser }) {
-  const openModal = useDoctoeModalStore((state) => state.onOpen);
+  const openModal = useDoctorModalStore((state) => state.onOpen);
 
   return (
     <Empty className="border border-dashed">

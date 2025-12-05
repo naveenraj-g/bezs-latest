@@ -1,6 +1,7 @@
+import { TService } from "@/modules/shared/entities/models/telemedicine/service";
 import { create } from "zustand";
 
-export type ModalType = "addService" | "deleteService";
+export type ModalType = "addService" | "deleteService" | "editService";
 
 interface DoctoeStore {
   type: ModalType | null;
@@ -8,6 +9,7 @@ interface DoctoeStore {
   userId?: string;
   orgId?: string;
   serviceId?: string;
+  serviceData?: TService;
   doctorData?: any;
   appointmentData?: any;
   trigger: number;
@@ -19,13 +21,14 @@ interface DoctoeStore {
     userId?: string;
     orgId?: string;
     serviceId?: string;
+    serviceData?: TService;
     doctorData?: any;
     appointmentData?: any;
   }) => void;
   onClose: () => void;
 }
 
-const _useDoctoeModalStore = create<DoctoeStore>((set) => ({
+const _useDoctorModalStore = create<DoctoeStore>((set) => ({
   type: null,
   isOpen: false,
   trigger: 0,
@@ -35,8 +38,9 @@ const _useDoctoeModalStore = create<DoctoeStore>((set) => ({
     serviceId = undefined,
     orgId = undefined,
     userId = undefined,
-    doctorData = null,
-    appointmentData = null,
+    serviceData = undefined,
+    doctorData = undefined,
+    appointmentData = undefined,
   }) =>
     set({
       isOpen: true,
@@ -44,6 +48,7 @@ const _useDoctoeModalStore = create<DoctoeStore>((set) => ({
       userId,
       orgId,
       serviceId,
+      serviceData,
       doctorData,
       appointmentData,
     }),
@@ -56,13 +61,14 @@ const _useDoctoeModalStore = create<DoctoeStore>((set) => ({
       serviceId: undefined,
       userId: undefined,
       orgId: undefined,
-      doctorData: null,
-      appointmentData: null,
+      serviceData: undefined,
+      doctorData: undefined,
+      appointmentData: undefined,
     }),
   incrementTrigger: () => set((state) => ({ trigger: state.trigger + 1 })),
   incrementInModalTrigger: () =>
     set((state) => ({ triggerInModal: state.triggerInModal + 1 })),
 }));
 
-export const useDoctoeModalStore = _useDoctoeModalStore;
-export const doctorModalStore = _useDoctoeModalStore;
+export const useDoctorModalStore = _useDoctorModalStore;
+export const doctorModalStore = _useDoctorModalStore;

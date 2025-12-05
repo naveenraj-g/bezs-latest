@@ -17,11 +17,7 @@ interface DayRowProps {
   onCopyToAll: () => void;
 }
 
-export const DayRow: React.FC<DayRowProps> = ({
-  day,
-  onUpdate,
-  onCopyToAll,
-}) => {
+export const DayRow = ({ day, onUpdate, onCopyToAll }: DayRowProps) => {
   const timeOptions = useMemo(() => generateTimeOptions(15), []);
 
   const handleToggleDay = (enabled: boolean) => {
@@ -79,11 +75,11 @@ export const DayRow: React.FC<DayRowProps> = ({
           <div className="flex flex-col">
             <span
               className={cn(
-                "font-semibold text-base",
+                "font-semibold text-base capitalize",
                 day.isEnabled ? "text-foreground" : "text-muted-foreground"
               )}
             >
-              {day.label}
+              {day.label.toLocaleLowerCase()}
             </span>
 
             {day.isEnabled && day.slots.length === 0 && (

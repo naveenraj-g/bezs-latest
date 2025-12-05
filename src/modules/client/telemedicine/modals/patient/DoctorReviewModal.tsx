@@ -5,7 +5,6 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -14,7 +13,7 @@ import { Star, User } from "lucide-react";
 import { useSession } from "@/modules/client/auth/betterauth/auth-client";
 import { usePatientModalStore } from "../../stores/patient-modal-store";
 
-export const DoctorReviewModal = () => {
+const DoctorReviewModal = () => {
   const session = useSession();
   const closeModal = usePatientModalStore((state) => state.onClose);
   const modalType = usePatientModalStore((state) => state.type);
@@ -37,7 +36,9 @@ export const DoctorReviewModal = () => {
           <DialogHeader>
             <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-2 pr-8">
               <img
-                src={doctorData.image}
+                src={
+                  doctorData.image || "https://picsum.photos/seed/jane/200/200"
+                }
                 alt={doctorData.name}
                 className="w-12 h-12 rounded-full object-cover border"
               />
@@ -114,3 +115,5 @@ export const DoctorReviewModal = () => {
     </Dialog>
   );
 };
+
+export { DoctorReviewModal };
