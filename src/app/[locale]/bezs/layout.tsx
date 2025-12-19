@@ -1,4 +1,5 @@
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { FileUploadModalProvider } from "@/modules/client/shared/provider/FileUploadModalProvider";
 import { getServerSession } from "@/modules/server/auth/betterauth/auth-server";
 import BreadCrumb from "@/modules/shared/components/breadcrumb";
 import { AppSidebar } from "@/modules/shared/components/menubar/app-sidebar";
@@ -36,7 +37,10 @@ const AppListingLayout = async ({
         <AppNavbar user={user} />
         <main className="mx-auto px-8 py-4 pb-6 max-w-[110rem] space-y-6 w-full">
           <BreadCrumb />
-          <div className="w-full">{children}</div>
+          <div className="w-full">
+            <FileUploadModalProvider />
+            {children}
+          </div>
         </main>
       </SidebarInset>
     </SidebarProvider>

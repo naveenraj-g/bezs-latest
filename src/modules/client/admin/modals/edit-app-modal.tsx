@@ -128,7 +128,7 @@ export const EditAppModal = () => {
                 control={form.control}
                 name="slug"
                 label="Slug"
-                description="Sets your app’s web address. Example: /bezs/project-tracker"
+                description="Used to define the app's name in URL path. Example: admin or telemedicine"
                 placeholder="Unique identifier, e.g. project-tracker"
               />
 

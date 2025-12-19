@@ -3,6 +3,7 @@ import { getServerSession } from "@/modules/server/auth/betterauth/auth-server";
 import { redirect } from "@/i18n/navigation";
 import { getAppointmentForOnlineConsultation } from "@/modules/client/telemedicine/server-actions/appointment-action";
 import { getLocale } from "next-intl/server";
+import Consult from "@/modules/client/telemedicine/components/patient/online-consultation/Consult";
 
 const PatientOnlineConsultationPage = async (
   props: PageProps<"/[locale]/bezs/telemedicine/patient/appointments/online-consultation">
@@ -24,18 +25,36 @@ const PatientOnlineConsultationPage = async (
     userId: session?.user.id,
   });
 
-  console.log(data, error);
+  if (!data && error) {
+    return (
+      <div>
+        <h1>Appointment not found</h1>
+      </div>
+    );
+  }
+
+  const participant = {
+    name: `${data?.patient.personal?.name} (Patient)` || "Patient",
+  };
+
+  const details = {
+    doctor: {
+      name: data.doctor.personal?.fullName,
+      speciality: "unknown",
+    },
+    patient: {
+      name: data.patient.personal?.name,
+    },
+  };
 
   return (
     <>
-      <div className="h-[500px]">
-        {/* <MediaRoom
-            chatId={params.roomId}
-            name={appointmentData?.patient.name || ""}
-            audio={true}
-            video={true}
-          /> */}
-        <h1>Media Room</h1>
+      <div>
+        <Consult
+          participant={participant}
+          roomId={data.virtualRoomId!}
+          details={details}
+        />
       </div>
     </>
   );

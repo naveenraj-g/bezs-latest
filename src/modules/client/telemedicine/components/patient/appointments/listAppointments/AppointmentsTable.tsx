@@ -5,7 +5,7 @@ import { IAppointmentTableProps } from "./types";
 import { appointmentColumn } from "./appointmentColumn";
 import { usePatientModalStore } from "@/modules/client/telemedicine/stores/patient-modal-store";
 import { EmptyState } from "@/modules/shared/components/EmptyState";
-import { CalendarPlus, Plus } from "lucide-react";
+import { AlertTriangle, CalendarPlus, Plus } from "lucide-react";
 
 const APPOINTMENT_STATUS = [
   "PENDING",
@@ -21,9 +21,9 @@ function AppointmentsTable({ appointments, error }: IAppointmentTableProps) {
   if (error) {
     return (
       <EmptyState
-        icon={<CalendarPlus />}
-        title="Error"
-        description="Something went wrong. Please try again later."
+        icon={<AlertTriangle className="text-destructive" />}
+        title="An Unexpected Error Occurred!"
+        description={error.message || "Please try again later."}
         buttonLabel="Reload"
         error={error}
       />

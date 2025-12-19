@@ -4,6 +4,7 @@ import { DI_RETURN_TYPES, DI_SYMBOLS } from "./types";
 import { UserModule } from "./modules/user.module";
 import { UserPreferencesModule } from "./modules/userPreferences.module";
 import { MonitoringModule } from "./modules/monitoring.module";
+import { AppModule } from "./modules/app.module";
 
 const SharedContainer = new Container({ defaultScope: "Singleton" });
 
@@ -11,6 +12,7 @@ const initializeContainer = () => {
   SharedContainer.load(UserModule);
   SharedContainer.load(UserPreferencesModule);
   SharedContainer.load(MonitoringModule);
+  SharedContainer.load(AppModule);
 };
 
 initializeContainer();

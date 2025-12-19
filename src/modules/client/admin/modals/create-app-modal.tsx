@@ -115,7 +115,7 @@ export const CreateAppModal = () => {
                 control={form.control}
                 name="slug"
                 label="Slug"
-                description="Used to define the app's URL path. Example: /bezs/project-tracker"
+                description="Used to define the app's name in URL path. Example: admin or telemedicine"
                 placeholder="Enter a unique slug (e.g., project-tracker)"
               />
 

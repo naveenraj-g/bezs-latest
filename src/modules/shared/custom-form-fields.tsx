@@ -17,6 +17,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import { HTMLInputTypeAttribute } from "react";
 import {
   Controller,
@@ -128,7 +129,7 @@ function FormBase<
   );
 }
 
-export const FormInput: TFormControlFunc = ({
+export const FormInput: TFormControlFunc<{ controlFirst?: boolean }> = ({
   className,
   placeholder,
   type,
@@ -168,16 +169,25 @@ export const FormTextarea: TFormControlFunc = ({
   );
 };
 
-export const FormSelect: TFormControlFunc<{ children: React.ReactNode }> = ({
-  children,
-  className,
-  placeholder,
-  ...props
-}) => {
+export const FormSelect: TFormControlFunc<{
+  children: React.ReactNode;
+  customValue?: any;
+  onCustomChange?: (value: string) => void;
+}> = ({ children, className, placeholder, customValue, ...props }) => {
   return (
     <FormBase {...props}>
       {({ onChange, onBlur, ...field }) => (
-        <Select {...field} onValueChange={onChange} value={field.value ?? ""}>
+        <Select
+          {...field}
+          onValueChange={(val) => {
+            if (props.onCustomChange) {
+              props.onCustomChange(val);
+              return;
+            }
+            onChange(val);
+          }}
+          value={customValue ?? field.value ?? ""}
+        >
           <SelectTrigger
             aria-invalid={field["aria-invalid"]}
             id={field.id}
@@ -234,16 +244,35 @@ export const FormRadioGroup: TFormControlFunc<{
   );
 };
 
-export const FormSwitch: TFormControlFunc = ({ className, ...props }) => {
+export const FormSwitch: TFormControlFunc<{
+  children: React.ReactNode;
+  childrenFirst?: boolean;
+  containerClass?: string;
+}> = ({
+  className,
+  children,
+  childrenFirst = false,
+  containerClass,
+  ...props
+}) => {
   return (
-    <FormBase {...props} horizontal controlFirst>
+    <FormBase {...props}>
       {({ value, onChange, ...field }) => (
-        <Switch
-          {...field}
-          checked={value}
-          onCheckedChange={onChange}
-          className={className}
-        />
+        <div
+          className={cn(
+            `flex items-center gap-3 h-full`,
+            childrenFirst ? "flex-row-reverse" : "flex-row",
+            containerClass
+          )}
+        >
+          <Switch
+            {...field}
+            checked={value}
+            onCheckedChange={onChange}
+            className={className}
+          />
+          {children}
+        </div>
       )}
     </FormBase>
   );

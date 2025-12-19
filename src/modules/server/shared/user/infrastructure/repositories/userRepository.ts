@@ -7,16 +7,67 @@ import {
   TUserUniqueFields,
   UserSchema,
 } from "../../entities/models/user";
+import { randomUUID } from "crypto";
+import { logOperation } from "../../../../../shared/utils/server-logger/log-operation";
 
 @injectable()
 export class UserRepository implements IUserRepository {
+  constructor() {}
+
   async getUserById(id: string): Promise<TUser | null> {
+    const startTimeMs = Date.now();
+    const operationId = randomUUID();
+
+    // Start log
+    logOperation("start", {
+      name: "getUserByIdRepository",
+      startTimeMs,
+      context: {
+        operationId,
+      },
+    });
+
     try {
       const user = await prismaMain.user.findUnique({
         where: { id },
       });
-      return await UserSchema.parseAsync(user);
+
+      if (!user) {
+        // Success log
+        logOperation("success", {
+          name: "getUserByIdRepository",
+          startTimeMs,
+          context: {
+            operationId,
+          },
+        });
+        return null;
+      }
+
+      const data = await UserSchema.parseAsync(user);
+
+      // Success log
+      logOperation("success", {
+        name: "getUserByIdRepository",
+        startTimeMs,
+        context: {
+          operationId,
+        },
+      });
+
+      return data;
     } catch (error) {
+      // Error log
+      logOperation("error", {
+        name: "getUserByIdRepository",
+        startTimeMs,
+        err: error,
+        errName: "UnknownRepositoryError",
+        context: {
+          operationId,
+        },
+      });
+
       if (error instanceof Error) {
         throw new OperationError(error.message, { cause: error });
       }
@@ -30,6 +81,18 @@ export class UserRepository implements IUserRepository {
   async getUserByUniqueFields(
     fields: TUserUniqueFields
   ): Promise<TUser | null> {
+    const startTimeMs = Date.now();
+    const operationId = randomUUID();
+
+    // Start log
+    logOperation("start", {
+      name: "getUserByUniqueFieldsRepository",
+      startTimeMs,
+      context: {
+        operationId,
+      },
+    });
+
     const { email, username } = fields;
 
     try {
@@ -38,8 +101,109 @@ export class UserRepository implements IUserRepository {
           OR: [{ email }, { username }],
         },
       });
-      return await UserSchema.parseAsync(user);
+
+      if (!user) {
+        // Success log
+        logOperation("success", {
+          name: "getUserByUniqueFieldsRepository",
+          startTimeMs,
+          context: {
+            operationId,
+          },
+        });
+        return null;
+      }
+
+      const data = await UserSchema.parseAsync(user);
+
+      // Success log
+      logOperation("success", {
+        name: "getUserByUniqueFieldsRepository",
+        startTimeMs,
+        context: {
+          operationId,
+        },
+      });
+
+      return data;
     } catch (error) {
+      // Error log
+      logOperation("error", {
+        name: "getUserByUniqueFieldsRepository",
+        startTimeMs,
+        err: error,
+        errName: "UnknownRepositoryError",
+        context: {
+          operationId,
+        },
+      });
+
+      if (error instanceof Error) {
+        throw new OperationError(error.message, { cause: error });
+      }
+
+      throw new OperationError("An unexpected error occurred", {
+        cause: error,
+      });
+    }
+  }
+
+  async isUserInOrg(userId: string, orgId: string): Promise<boolean> {
+    const startTimeMs = Date.now();
+    const operationId = randomUUID();
+
+    // Start log
+    logOperation("start", {
+      name: "checkUserInOrgRepository",
+      startTimeMs,
+      context: {
+        operationId,
+      },
+    });
+
+    try {
+      const isMember = await prismaMain.member.findFirst({
+        where: {
+          userId,
+          organizationId: orgId,
+        },
+        select: { id: true },
+      });
+
+      if (!isMember) {
+        // Success log
+        logOperation("success", {
+          name: "checkUserInOrgRepository",
+          startTimeMs,
+          context: {
+            operationId,
+          },
+        });
+
+        return false;
+      }
+
+      // Success log
+      logOperation("success", {
+        name: "checkUserInOrgRepository",
+        startTimeMs,
+        context: {
+          operationId,
+        },
+      });
+      return true;
+    } catch (error) {
+      // Error log
+      logOperation("error", {
+        name: "checkUserInOrgRepository",
+        startTimeMs,
+        err: error,
+        errName: "UnknownRepositoryError",
+        context: {
+          operationId,
+        },
+      });
+
       if (error instanceof Error) {
         throw new OperationError(error.message, { cause: error });
       }

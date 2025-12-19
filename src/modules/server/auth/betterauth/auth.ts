@@ -29,6 +29,7 @@ export const auth = betterAuth({
       enabled: true,
       maxAge: 60 * 2,
     },
+    expiresIn: 60 * 60 * 24 * 30,
   },
   emailAndPassword: {
     enabled: true,
@@ -221,6 +222,7 @@ export const auth = betterAuth({
           username: true,
           currentOrgId: true,
           keycloakUserid: true,
+          role: true,
         },
       });
 
