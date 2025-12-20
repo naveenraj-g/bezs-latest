@@ -5,7 +5,13 @@ import { useFileUploadStore } from "@/modules/client/shared/store/file-upload-st
 import { Upload } from "lucide-react";
 import { IFileUploadProps } from "../types/file-upload";
 
-function FileUpload({ fileUploadData, user, modalError }: IFileUploadProps) {
+function FileUpload({
+  fileUploadData,
+  user,
+  modalError,
+  url,
+  queryKey,
+}: IFileUploadProps) {
   const openModal = useFileUploadStore((state) => state.onOpen);
 
   function handleOpenModal() {
@@ -13,6 +19,8 @@ function FileUpload({ fileUploadData, user, modalError }: IFileUploadProps) {
       type: "fileUpload",
       error: modalError,
       fileUploadData,
+      revalidatePath: url,
+      queryKey,
     });
   }
 

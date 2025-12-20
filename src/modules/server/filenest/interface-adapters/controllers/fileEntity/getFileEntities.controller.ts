@@ -8,7 +8,9 @@ function presenter(data: TFileEntitiesSchema) {
 }
 export type TGetFileEntitiesControllerOutput = ReturnType<typeof presenter>;
 
-export async function getFileEntitiesController(input: any) {
+export async function getFileEntitiesController(
+  input: any
+): Promise<TGetFileEntitiesControllerOutput> {
   const { data, error: inputParseError } =
     await GetFileEntitiesValidationSchema.safeParseAsync(input);
 

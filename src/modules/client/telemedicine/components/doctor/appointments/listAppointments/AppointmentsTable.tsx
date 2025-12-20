@@ -4,7 +4,7 @@ import DataTable from "@/modules/shared/components/table/data-table";
 import { IAppointmentTableProps } from "./types";
 import { appointmentColumn } from "./appointmentColumn";
 import { EmptyState } from "@/modules/shared/components/EmptyState";
-import { CalendarPlus } from "lucide-react";
+import { AlertCircle, CalendarPlus } from "lucide-react";
 
 const APPOINTMENT_STATUS = [
   "PENDING",
@@ -18,7 +18,7 @@ function AppointmentsTable({ appointments, error }: IAppointmentTableProps) {
   if (error) {
     return (
       <EmptyState
-        icon={<CalendarPlus />}
+        icon={<AlertCircle />}
         title="Error"
         description="Something went wrong. Please try again later."
         buttonLabel="Reload"

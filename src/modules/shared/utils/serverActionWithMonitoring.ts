@@ -23,7 +23,7 @@ export async function withMonitoring<T>(
   name: string,
   handler: () => Promise<T>,
   options?: {
-    url?: string;
+    url?: string | null;
     revalidatePath?: boolean;
     revalidateType?: "layout";
     redirect?: boolean;

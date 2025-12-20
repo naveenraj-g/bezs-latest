@@ -12,6 +12,8 @@ interface AdminStoreModal {
   title?: string | null;
   description?: string | null;
   error?: ZSAError | null;
+  revalidatePath?: string | null;
+  queryKey?: (string | number | null | undefined)[] | null;
   fileUploadData?: TGetFileUploadRequiredDataControllerOutput | null;
   incrementTrigger: () => void;
   incrementInModalTrigger: () => void;
@@ -20,7 +22,9 @@ interface AdminStoreModal {
     title?: string;
     description?: string;
     error?: ZSAError | null;
+    revalidatePath?: string | null;
     fileUploadData?: TGetFileUploadRequiredDataControllerOutput | null;
+    queryKey?: (string | number | null | undefined)[] | null;
   }) => void;
   onClose: () => void;
 }
@@ -36,6 +40,8 @@ const _useFileUploadStore = create<AdminStoreModal>((set) => ({
     description = null,
     error = null,
     fileUploadData = null,
+    revalidatePath = null,
+    queryKey = null,
   }) =>
     set({
       isOpen: true,
@@ -44,6 +50,8 @@ const _useFileUploadStore = create<AdminStoreModal>((set) => ({
       description,
       error,
       fileUploadData,
+      revalidatePath,
+      queryKey,
     }),
   onClose: () =>
     set({
@@ -53,6 +61,8 @@ const _useFileUploadStore = create<AdminStoreModal>((set) => ({
       description: null,
       error: null,
       fileUploadData: null,
+      revalidatePath: null,
+      queryKey: null,
       trigger: 0,
       triggerInModal: 0,
     }),

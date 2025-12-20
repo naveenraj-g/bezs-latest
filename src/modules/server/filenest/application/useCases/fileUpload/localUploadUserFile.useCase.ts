@@ -95,17 +95,5 @@ export async function localUploadUserFileUseCase(
     })
   );
 
-  // console.log(fileDatas);
-
   return await fileUploadRepository.localUploadUserFile(fileDatas);
 }
-
-// data: [
-//     {
-//       filePath: 'D:\\code\\alphaes-ai\\bezs-uploads\\filenest\\filenest-uploads\\1766155517906-Screenshot 2025-12-07 134352.png',
-//       fileId: '1766155517906-Screenshot 2025-12-07 134352.png',
-//       fileName: 'Screenshot 2025-12-07 134352.png',
-//       fileSize: 438833,
-//       fileType: 'image/png'
-//     }
-//   ]

@@ -21,6 +21,7 @@ interface EmptyDataProps {
   buttonLabel?: string;
   buttonOnClick?: () => void;
   error?: ZSAError | null;
+  ButtonEle?: React.ElementType | null;
 }
 
 export function EmptyState(props: EmptyDataProps) {
@@ -48,6 +49,8 @@ export function EmptyState(props: EmptyDataProps) {
             <RefreshCw />
             Reload
           </Button>
+        ) : props.ButtonEle ? (
+          <props.ButtonEle />
         ) : (
           props.buttonLabel && (
             <Button

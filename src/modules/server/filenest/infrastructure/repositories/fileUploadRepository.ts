@@ -5,9 +5,12 @@ import { logOperation } from "../../../../shared/utils/server-logger/log-operati
 import { prismaFilenest } from "../../../../server/prisma/prisma";
 import { OperationError } from "../../../../shared/entities/errors/commonError";
 import {
+  EntitiesAndFilesByAppSchema,
   FileUploadRequiredDataSchema,
+  TEntitiesAndFilesByAppSchema,
   TFileDatasSchema,
   TFileUploadRequiredDataSchema,
+  TGetEntitiesAndFilesByAppPayloadSchema,
   TGetFileUploadRequiredData,
 } from "../../../../shared/entities/models/filenest/fileUpload";
 
@@ -110,6 +113,81 @@ export class FileUploadRepository implements IFileUploadRepository {
     } catch (error) {
       logOperation("error", {
         name: "localUploadUserFileRepository",
+        startTimeMs,
+        err: error,
+        errName: "UnknownRepositoryError",
+        context: { operationId },
+      });
+
+      if (error instanceof Error) {
+        throw new OperationError(error.message, { cause: error });
+      }
+      throw new OperationError("An unexpected error occurred", {
+        cause: error,
+      });
+    }
+  }
+
+  async getEntitiesAndFilesByApp(
+    payload: TGetEntitiesAndFilesByAppPayloadSchema
+  ): Promise<TEntitiesAndFilesByAppSchema> {
+    const startTimeMs = Date.now();
+    const operationId = randomUUID();
+
+    logOperation("start", {
+      name: "getEntitiesAndFilesByAppRepository",
+      startTimeMs,
+      context: { operationId },
+    });
+
+    const { appId, appSlug, orgId, userId } = payload;
+
+    try {
+      const files = await prismaFilenest.fileEntity.findMany({
+        where: {
+          orgId,
+          appId,
+          appSlug,
+          isActive: true,
+        },
+        select: {
+          userFiles: {
+            where: {
+              userId,
+              orgId,
+              appId,
+              appSlug,
+            },
+            select: {
+              id: true,
+              fileName: true,
+              fileType: true,
+              fileSize: true,
+              storageType: true,
+              filePath: true,
+              createdAt: true,
+              updatedAt: true,
+            },
+          },
+          id: true,
+          type: true,
+          name: true,
+          label: true,
+        },
+      });
+
+      const data = await EntitiesAndFilesByAppSchema.parseAsync(files);
+
+      logOperation("success", {
+        name: "getEntitiesAndFilesByAppRepository",
+        startTimeMs,
+        context: { operationId },
+      });
+
+      return data;
+    } catch (error) {
+      logOperation("error", {
+        name: "getEntitiesAndFilesByAppRepository",
         startTimeMs,
         err: error,
         errName: "UnknownRepositoryError",

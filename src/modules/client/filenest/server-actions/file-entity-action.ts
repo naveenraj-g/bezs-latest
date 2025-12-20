@@ -23,6 +23,7 @@ import {
 import { getAppSlugServerOnly } from "@/modules/shared/utils/getAppSlugServerOnly";
 
 import { withMonitoring } from "@/modules/shared/utils/serverActionWithMonitoring";
+import z from "zod";
 import { createServerAction } from "zsa";
 
 export const getFileEntities = createServerAction()
@@ -93,6 +94,25 @@ export const getFileEntitiesByAppId = createServerAction()
     return await withMonitoring<TGetFileEntitiesByAppIdControllerOutput>(
       "getFileEntities",
       () => getFileEntitiesByAppIdController(data),
+      {
+        operationErrorMessage: "Failed to get File Entities.",
+      }
+    );
+  });
+
+export const getFileEntitiesByAppSlug = createServerAction()
+  .input(
+    GetFileEntitiesByAppIdValidationSchema.extend({
+      appSlug: z.string().min(1),
+    }),
+    {
+      skipInputParsing: true,
+    }
+  )
+  .handler(async ({ input }) => {
+    return await withMonitoring<TGetFileEntitiesByAppIdControllerOutput>(
+      "getFileEntities",
+      () => getFileEntitiesByAppIdController(input),
       {
         operationErrorMessage: "Failed to get File Entities.",
       }

@@ -1,6 +1,7 @@
 import { IAppStorageSettingRepository } from "../application/repositories/appStorageSettingRepository.interface";
 import { ICloudStorageRepository } from "../application/repositories/cloudStorageRepository.interface";
 import { IFileEntityRepository } from "../application/repositories/fileEntityRepository.interface";
+import { IFilenestRepository } from "../application/repositories/filenestRepository.interface";
 import { IFileUploadRepository } from "../application/repositories/fileUploadRepository.interface";
 import { ILocalStorageRepository } from "../application/repositories/localStorageRepository.interface";
 
@@ -11,6 +12,7 @@ export const DI_SYMBOLS = {
   IAppStorageSettingRepository: Symbol.for("IAppStorageSettingRepository"),
   IFileEntityRepository: Symbol.for("IFileEntityRepository"),
   IFileUploadRepository: Symbol.for("IFileUploadRepository"),
+  IFilenestRepository: Symbol.for("IFilenestRepository"),
 };
 
 export interface DI_RETURN_TYPES {
@@ -20,4 +22,5 @@ export interface DI_RETURN_TYPES {
   IAppStorageSettingRepository: IAppStorageSettingRepository;
   IFileEntityRepository: IFileEntityRepository;
   IFileUploadRepository: IFileUploadRepository;
+  IFilenestRepository: IFilenestRepository;
 }

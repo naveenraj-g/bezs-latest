@@ -10,6 +10,7 @@ import { GetFileEntitiesByAppIdValidationSchema } from "@/modules/shared/schemas
 import { FileUploadValidationSchema } from "@/modules/shared/schemas/filenest/fileUploadValidationSchema";
 import { getAppSlugServerOnly } from "@/modules/shared/utils/getAppSlugServerOnly";
 import { withMonitoring } from "@/modules/shared/utils/serverActionWithMonitoring";
+import z from "zod";
 import { createServerAction } from "zsa";
 
 export const getFileUploadRequiredData = createServerAction()
@@ -32,14 +33,37 @@ export const getFileUploadRequiredData = createServerAction()
     );
   });
 
-export const localUploadUserFile = createServerAction()
-  .input(FileUploadValidationSchema, { skipInputParsing: true })
+export const getFileUploadRequiredDataWithAppSlug = createServerAction()
+  .input(GetFileEntitiesByAppIdValidationSchema, {
+    skipInputParsing: true,
+  })
   .handler(async ({ input }) => {
+    return await withMonitoring<TGetFileUploadRequiredDataControllerOutput>(
+      "getFileUploadRequiredData",
+      () => getFileUploadRequiredDataController(input),
+      {
+        operationErrorMessage: "Failed to get file upload datas.",
+      }
+    );
+  });
+
+export const localUploadUserFile = createServerAction()
+  .input(
+    FileUploadValidationSchema.and(
+      z.object({ revalidatePath: z.string().nullish() })
+    ),
+    { skipInputParsing: true }
+  )
+  .handler(async ({ input }) => {
+    const { revalidatePath: url, ...data } = input;
+
     return await withMonitoring<TLocalUploadUserFileControllerOutput>(
       "localUploadUserFile",
-      () => localUploadUserFileController(input),
+      () => localUploadUserFileController(data),
       {
         operationErrorMessage: "Failed to upload file.",
+        url,
+        revalidatePath: !!url,
       }
     );
   });

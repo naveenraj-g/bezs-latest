@@ -6,4 +6,6 @@ export interface IFileUploadProps {
   fileUploadData?: TGetFileUploadRequiredDataControllerOutput | null;
   user: TSharedUser;
   modalError?: ZSAError | null;
+  url?: string | null;
+  queryKey?: (string | number | null | undefined)[] | null;
 }
