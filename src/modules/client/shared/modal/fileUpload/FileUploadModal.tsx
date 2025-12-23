@@ -379,7 +379,11 @@ export function UploadModal() {
                 control={form.control}
                 name="fileEntityId"
                 label="File Category"
-                placeholder="Select a category"
+                placeholder={
+                  !fileEntitiesSelect || fileEntitiesSelect.length === 0
+                    ? "No category to select"
+                    : "Select a category"
+                }
                 customValue={form.watch().fileEntityId?.toString()}
                 onCustomChange={(value) => {
                   form.setValue("fileEntityId", BigInt(value));

@@ -1,17 +1,18 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Download, Edit, EllipsisVertical, Eye, Trash2 } from "lucide-react";
+import { Download, EllipsisVertical, Eye, Share2, Trash2 } from "lucide-react";
 import { TanstackTableColumnSorting } from "@/modules/shared/components/table/tanstack-table-column-sorting";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { bytesToSize, formatSmartDate } from "@/modules/shared/helper";
 import { TGetUserFilesControllerOutput } from "@/modules/server/filenest/interface-adapters/controllers/filenest";
+import { fileNestUserStore } from "@/modules/client/shared/store/filenest-user-store";
 
 export const listFileTableColumn = (): ColumnDef<
   TGetUserFilesControllerOutput[number]
@@ -38,27 +39,6 @@ export const listFileTableColumn = (): ColumnDef<
       );
     },
   },
-  //   {
-  //     header: ({ column }) => {
-  //       const isSorted = column.getIsSorted();
-
-  //       return (
-  //         <TanstackTableColumnSorting
-  //           label="Name"
-  //           column={column}
-  //           isSorted={isSorted}
-  //         />
-  //       );
-  //     },
-  //     id: "appData",
-  //     accessorKey: "appData",
-  //     cell({ row }) {
-  //       const appData = appDatas?.find(
-  //         (appData) => appData.id === row.original.appId
-  //       );
-  //       return <span className="truncate">{appData?.name}</span>;
-  //     },
-  //   },
   {
     header: "File Size",
     accessorKey: "fileSize",
@@ -103,64 +83,58 @@ export const listFileTableColumn = (): ColumnDef<
     header: "ACTIONS",
     id: "actions",
     cell: ({ row }) => {
-      const appSettingData = row.original;
+      const userFileData = row.original;
+      const fileData = {
+        fileName: userFileData.fileName,
+        filePath: userFileData.filePath,
+        fileSize: userFileData.fileSize,
+        fileType: userFileData.fileType,
+        id: userFileData.id,
+      };
+      const openModal = fileNestUserStore((state) => state.onOpen);
 
       return (
         <DropdownMenu>
-          <DropdownMenuTrigger
-            className={cn(
-              buttonVariants({ size: "icon", variant: "ghost" }),
-              "rounded-full"
-            )}
-          >
-            <EllipsisVertical />
+          <DropdownMenuTrigger asChild>
+            <Button size="icon" variant="ghost">
+              <EllipsisVertical />
+            </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" side="left">
-            <DropdownMenuItem
-              className="cursor-pointer space-x-2"
-              //   onClick={() =>
-              //     openModal()
-              //   }
-            >
-              <div className="flex items-center gap-2">
-                <Eye />
-                View
-              </div>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="cursor-pointer space-x-2"
-              //   onClick={() =>
-              //     openModal()
-              //   }
-            >
-              <div className="flex items-center gap-2">
-                <Download />
-                Download
-              </div>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="cursor-pointer space-x-2"
-              //   onClick={() =>
-              //     openModal()
-              //   }
-            >
-              <div className="flex items-center gap-2">
-                <Edit />
-                Edit
-              </div>
-            </DropdownMenuItem>
+          <DropdownMenuContent align="start">
+            <DropdownMenuGroup>
+              <DropdownMenuItem
+                className="text-foreground"
+                onClick={() => {
+                  openModal({ type: "previewFile", fileData });
+                }}
+              >
+                <Eye className="h-4 w-4 text-inherit" /> View
+              </DropdownMenuItem>
+              <DropdownMenuItem className="text-foreground" asChild>
+                <a
+                  href={
+                    fileData?.id && fileData?.fileName
+                      ? `/api/file/view?id=${fileData.id}&fileName=${fileData.fileName}&filePath=${fileData.filePath}&fileType=${fileData.fileType}&id=${fileData.id}`
+                      : ""
+                  }
+                  download
+                  target="_blank"
+                  className="flex items-center gap-1"
+                >
+                  <Download className="h-4 w-4 text-inherit" />
+                  Download
+                </a>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="text-foreground">
+                <Share2 className="h-4 w-4 text-inherit" /> Share
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="cursor-pointer space-x-2 text-rose-600 hover:!text-rose-600 dark:text-rose-500 dark:hover:!text-rose-500"
-              //   onClick={() =>
-              //     openModal()
-              //   }
-            >
-              <div className="flex items-center gap-2">
-                <Trash2 className="text-rose-600 dark:text-rose-500" />
-                Delete
-              </div>
-            </DropdownMenuItem>
+            <DropdownMenuGroup>
+              <DropdownMenuItem className="text-rose-600 hover:!text-rose-600">
+                <Trash2 className="h-4 w-4 text-inherit" /> Delete
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
       );

@@ -8,6 +8,9 @@ import { useSearchParams } from "next/navigation";
 import ListFileTable from "./ListFileTable";
 import { getFileUploadRequiredDataWithAppSlug } from "@/modules/client/shared/server-actions/file-upload-action";
 import { getUserFiles } from "../../../server-actions/filenest-actions";
+import { updateQueryParam } from "@/modules/shared/utils/updateQueryParam";
+import { useRouter } from "@/i18n/navigation";
+import { useEffect } from "react";
 
 interface IListFilesProps {
   user: TSharedUser;
@@ -15,6 +18,7 @@ interface IListFilesProps {
 
 function ListFiles({ user }: IListFilesProps) {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const appSlug = searchParams?.get("app") as string;
 
   const {
@@ -49,6 +53,11 @@ function ListFiles({ user }: IListFilesProps) {
       }),
   });
 
+  useEffect(() => {
+    if (!filesDataIsFetching) return;
+    updateQueryParam("filterBy", null, searchParams!, router);
+  }, [filesDataIsFetching, router, searchParams]);
+
   if (fileUploadDataIsPending || fileUploadDataIsFetching)
     return (
       <div className="flex items-center gap-2 justify-center mt-18 text-muted-foreground">
@@ -63,13 +72,22 @@ function ListFiles({ user }: IListFilesProps) {
       </div>
     );
 
+  function handleTabContentChange(value: string) {
+    updateQueryParam(
+      "filterBy",
+      value === "all-files" ? null : value,
+      searchParams!,
+      router
+    );
+  }
+
   return (
     <div className="space-y-6">
-      <Tabs defaultValue="all-files">
+      <Tabs defaultValue="all-files" onValueChange={handleTabContentChange}>
         <TabsList>
           <TabsTrigger value="all-files">All Files</TabsTrigger>
           {fileUploadData?.[0]?.fileEntities?.map((d) => (
-            <TabsTrigger key={d.id} value={d.name}>
+            <TabsTrigger key={d.id} value={d.label}>
               {d.label}
             </TabsTrigger>
           ))}

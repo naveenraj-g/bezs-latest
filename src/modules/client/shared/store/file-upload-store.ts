@@ -4,7 +4,7 @@ import { create } from "zustand";
 
 export type ModalType = "fileUpload";
 
-interface AdminStoreModal {
+interface FileUploadStoreModal {
   type: ModalType | null;
   isOpen: boolean;
   trigger: number;
@@ -29,7 +29,7 @@ interface AdminStoreModal {
   onClose: () => void;
 }
 
-const _useFileUploadStore = create<AdminStoreModal>((set) => ({
+const _useFileUploadStore = create<FileUploadStoreModal>((set) => ({
   type: null,
   isOpen: false,
   trigger: 0,

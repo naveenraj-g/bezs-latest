@@ -11,39 +11,14 @@ import { useRouter } from "@/i18n/navigation";
 import { TGetAppsByOrgIdControllerOutput } from "@/modules/server/shared/app/interface-adapters/controllers";
 import { useSearchParams } from "next/navigation";
 import { ZSAError } from "zsa";
-import qs from "query-string";
 import { useEffect } from "react";
+import { updateQueryParam } from "@/modules/shared/utils/updateQueryParam";
 
 interface IAppSelectProps {
   apps: TGetAppsByOrgIdControllerOutput | null;
   defaultValue: string;
   error?: ZSAError | null;
 }
-
-const updateQueryParam = (
-  key: string,
-  value: any,
-  searchParams: URLSearchParams,
-  router: ReturnType<typeof useRouter>
-) => {
-  const currentParams = qs.parse(searchParams.toString());
-
-  // If value is an object, nest it properly
-  const newParams =
-    typeof value === "object" && value !== null
-      ? {
-          ...currentParams,
-          ...Object.entries(value).reduce((acc, [k, v]) => {
-            acc[`${k}`] = v;
-            return acc;
-          }, {} as Record<string, any>),
-        }
-      : { ...currentParams, [key]: value };
-
-  const newQuery = qs.stringify(newParams);
-
-  router.push(`?${newQuery}`);
-};
 
 function AppSelect({ apps, defaultValue, error }: IAppSelectProps) {
   const router = useRouter();
@@ -63,7 +38,6 @@ function AppSelect({ apps, defaultValue, error }: IAppSelectProps) {
 
   function onAppChange(value: string) {
     updateQueryParam("app", value, searchParams!, router);
-    console.log("Selected app:", value);
   }
 
   return (
