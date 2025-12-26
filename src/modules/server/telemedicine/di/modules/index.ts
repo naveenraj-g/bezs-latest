@@ -7,3 +7,4 @@ export { OrgAccessCheckRepositoryModule } from "./orgAccessCheck.module";
 export { IdResolverRepositoryModule } from "./idResolver.module";
 export { DoctorWeeklyAvailabilityModule } from "./doctorWeeklyAvailability.module";
 export { DoctorModule } from "./doctor.module";
+export { DashboardModule } from "./dashboard.module";

@@ -245,7 +245,7 @@ export const FormRadioGroup: TFormControlFunc<{
 };
 
 export const FormSwitch: TFormControlFunc<{
-  children: React.ReactNode;
+  children?: React.ReactNode;
   childrenFirst?: boolean;
   containerClass?: string;
 }> = ({
@@ -271,7 +271,7 @@ export const FormSwitch: TFormControlFunc<{
             onCheckedChange={onChange}
             className={className}
           />
-          {children}
+          {children ?? null}
         </div>
       )}
     </FormBase>

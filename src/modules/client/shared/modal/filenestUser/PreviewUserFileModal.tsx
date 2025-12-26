@@ -87,6 +87,7 @@ export const PrevireUserFileModal = () => {
 
   if (fileData?.fileType.startsWith("image/")) {
     filePreviewRenderContent = wrapWithLoading(
+      // eslint-disable-next-line @next/next/no-img-element
       <img
         src={src}
         alt={fileData?.fileName || "file"}

@@ -12,7 +12,7 @@ import { useSession } from "@/modules/client/auth/betterauth/auth-client";
 import { useFilenestAdminStoreModal } from "../../stores/admin-store-modal";
 import { useServerAction } from "zsa-react";
 import { handleInputParseError } from "@/modules/shared/utils/handleInputParseError";
-import { CloudStorageForm } from "../../forms/admin/CloudStorageForm";
+import { CloudStorageForm } from "../../forms/modals/admin/CloudStorageForm";
 import {
   CreateOrUpdateCloudStorageFormSchema,
   TCreateOrUpdateCloudStorageFormSchema,

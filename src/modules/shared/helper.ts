@@ -14,6 +14,12 @@ export function formatDuration(start: number, end: number) {
   return { durationMs, duration };
 }
 
+export function formatNumber(amount: number) {
+  return amount?.toLocaleString("en-IN", {
+    maximumFractionDigits: 0,
+  });
+}
+
 /**
  * Convert a value in MB to GB if it reaches or exceeds 1 GB (1024 MB)
  * @param mb - Value in megabytes

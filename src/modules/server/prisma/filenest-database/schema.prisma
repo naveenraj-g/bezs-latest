@@ -201,14 +201,13 @@ model UserFile {
 // -----------------------------------------------------------
 // User file access control
 // ------------------------------------------------------------
-
 model UserFilePermission {
-    id        BigInt  @id @default(autoincrement())
-    orgId     String
-    userId    String
-    canView   Boolean @default(false)
-    canEdit   Boolean @default(false)
-    canDelete Boolean @default(false)
+    id           BigInt  @id @default(autoincrement())
+    orgId        String
+    ownerUserId  String
+    sharedUserId String
+    canView      Boolean @default(false)
+    canDownload  Boolean @default(false)
 
     userFileId BigInt
     userFile   UserFile @relation(fields: [userFileId], references: [id], onDelete: Cascade)
@@ -217,4 +216,6 @@ model UserFilePermission {
     updatedBy String
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+
+    @@unique([userFileId, sharedUserId])
 }

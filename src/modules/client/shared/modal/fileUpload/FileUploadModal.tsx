@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -22,7 +22,7 @@ import { FormSelect } from "@/modules/shared/custom-form-fields";
 import ActionTooltipProvider from "@/modules/shared/providers/action-tooltip-provider";
 import { formatStorage } from "@/modules/shared/helper";
 import { useServerAction } from "zsa-react";
-import { localUploadUserFile } from "../../server-actions/file-upload-action";
+import { uploadLocalUserFile } from "../../server-actions/file-upload-action";
 import { handleInputParseError } from "@/modules/shared/utils/handleInputParseError";
 import { usePathname } from "@/i18n/navigation";
 import { useQueryClient } from "@tanstack/react-query";
@@ -74,19 +74,8 @@ export function UploadModal() {
     },
   });
 
-  useEffect(() => {
-    if (
-      fileUploadData?.fileEntities &&
-      fileUploadData.fileEntities.length >= 1
-    ) {
-      form.reset({
-        fileEntityId: fileUploadData.fileEntities[0].id,
-      });
-    }
-  }, [fileUploadData?.fileEntities, form]);
-
   const { execute: localFileUpload, isPending: isLocalFileUploadPending } =
-    useServerAction(localUploadUserFile, {
+    useServerAction(uploadLocalUserFile, {
       onSuccess({ data }) {
         if (data?.success) {
           toast.success("File uploaded successfully.");
@@ -126,7 +115,9 @@ export function UploadModal() {
         progress: 0,
         status: "uploading",
         isDeleting: false,
-        objectUrl: URL.createObjectURL(file),
+        objectUrl: file.type.includes("image/")
+          ? URL.createObjectURL(file)
+          : undefined,
       }));
 
       setUploadedFiles((prev) => [...prev, ...newFiles]);
@@ -161,7 +152,7 @@ export function UploadModal() {
         }
       }
     },
-    [fileUploadData?.maxFileSize]
+    [fileUploadData]
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -169,10 +160,6 @@ export function UploadModal() {
     onDropRejected,
     maxFiles: 5,
     maxSize: 1024 * 1024 * (fileUploadData?.maxFileSize ?? 100),
-    // accept: {
-    //   "image/*": [],
-    //   "application/pdf": [".pdf"],
-    // },
   });
 
   const simulateUpload = (id: string) => {
@@ -334,6 +321,7 @@ export function UploadModal() {
                         <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center overflow-hidden">
                           {uploadedFile.status === "complete" ? (
                             uploadedFile?.objectUrl ? (
+                              // eslint-disable-next-line @next/next/no-img-element
                               <img
                                 src={uploadedFile.objectUrl}
                                 alt={uploadedFile.id}
@@ -384,7 +372,7 @@ export function UploadModal() {
                     ? "No category to select"
                     : "Select a category"
                 }
-                customValue={form.watch().fileEntityId?.toString()}
+                customValue={form.watch().fileEntityId?.toString() || undefined}
                 onCustomChange={(value) => {
                   form.setValue("fileEntityId", BigInt(value));
                 }}

@@ -19,13 +19,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { TFileNestUserStoreOpenModal } from "@/modules/client/shared/store/filenest-user-store";
+import { TUserStoreOpenModal } from "../../../stores/user-modal-store";
 
 interface ListFileCardProps {
   row: Row<TGetUserFilesControllerOutput[number]>;
   openModal: TFileNestUserStoreOpenModal;
+  openUserModal: TUserStoreOpenModal;
 }
 
-function ListFileCard({ row, openModal }: ListFileCardProps) {
+function ListFileCard({ row, openModal, openUserModal }: ListFileCardProps) {
   const userFileData = row.original;
   const dateFormated = formatSmartDate(userFileData.updatedAt);
 
@@ -94,7 +96,12 @@ function ListFileCard({ row, openModal }: ListFileCardProps) {
                   Download
                 </a>
               </DropdownMenuItem>
-              <DropdownMenuItem className="text-foreground">
+              <DropdownMenuItem
+                className="text-foreground"
+                onClick={() => {
+                  openUserModal({ type: "shareFile", fileData });
+                }}
+              >
                 <Share2 className="h-4 w-4 text-inherit" /> Share
               </DropdownMenuItem>
             </DropdownMenuGroup>

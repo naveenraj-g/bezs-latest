@@ -5,6 +5,7 @@ import { injectable } from "inversify";
 import {
   TUser,
   TUserUniqueFields,
+  TUserUserNameOrEmailAndOrgId,
   UserSchema,
 } from "../../entities/models/user";
 import { randomUUID } from "crypto";
@@ -196,6 +197,155 @@ export class UserRepository implements IUserRepository {
       // Error log
       logOperation("error", {
         name: "checkUserInOrgRepository",
+        startTimeMs,
+        err: error,
+        errName: "UnknownRepositoryError",
+        context: {
+          operationId,
+        },
+      });
+
+      if (error instanceof Error) {
+        throw new OperationError(error.message, { cause: error });
+      }
+
+      throw new OperationError("An unexpected error occurred", {
+        cause: error,
+      });
+    }
+  }
+
+  async getUsersByIdAndOrgId(
+    userId: string,
+    orgId: string
+  ): Promise<TUser | null> {
+    const startTimeMs = Date.now();
+    const operationId = randomUUID();
+
+    // Start log
+    logOperation("start", {
+      name: "getUsersByIdAndOrgIdRepository",
+      startTimeMs,
+      context: {
+        operationId,
+      },
+    });
+
+    try {
+      const user = await prismaMain.user.findUnique({
+        where: {
+          id: userId,
+          members: {
+            some: {
+              organizationId: orgId,
+            },
+          },
+        },
+      });
+
+      if (!user) {
+        // Success log
+        logOperation("success", {
+          name: "getUsersByIdAndOrgIdRepository",
+          startTimeMs,
+          context: {
+            operationId,
+          },
+        });
+        return null;
+      }
+
+      const data = await UserSchema.parseAsync(user);
+
+      // Success log
+      logOperation("success", {
+        name: "getUsersByIdAndOrgIdRepository",
+        startTimeMs,
+        context: {
+          operationId,
+        },
+      });
+
+      return data;
+    } catch (error) {
+      // Error log
+      logOperation("error", {
+        name: "getUsersByIdAndOrgIdRepository",
+        startTimeMs,
+        err: error,
+        errName: "UnknownRepositoryError",
+        context: {
+          operationId,
+        },
+      });
+
+      if (error instanceof Error) {
+        throw new OperationError(error.message, { cause: error });
+      }
+
+      throw new OperationError("An unexpected error occurred", {
+        cause: error,
+      });
+    }
+  }
+
+  async getUserByUserNameOrEmailAndOrgId(
+    payload: TUserUserNameOrEmailAndOrgId
+  ): Promise<TUser | null> {
+    const startTimeMs = Date.now();
+    const operationId = randomUUID();
+
+    // Start log
+    logOperation("start", {
+      name: "getUserByUserNameOrEmailAndOrgIdRepository",
+      startTimeMs,
+      context: {
+        operationId,
+      },
+    });
+
+    const { email, username, orgId } = payload;
+
+    try {
+      const user = await prismaMain.user.findFirst({
+        where: {
+          OR: [{ email }, { username }],
+          members: {
+            some: {
+              organizationId: orgId,
+            },
+          },
+        },
+      });
+
+      if (!user) {
+        // Success log
+        logOperation("success", {
+          name: "getUserByUserNameOrEmailAndOrgIdRepository",
+          startTimeMs,
+          context: {
+            operationId,
+          },
+        });
+        return null;
+      }
+
+      const data = await UserSchema.parseAsync(user);
+
+      // Success log
+      logOperation("success", {
+        name: "getUserByUserNameOrEmailAndOrgIdRepository",
+        startTimeMs,
+        context: {
+          operationId,
+        },
+      });
+
+      return data;
+    } catch (error) {
+      // Error log
+      logOperation("error", {
+        name: "getUserByUserNameOrEmailAndOrgIdRepository",
         startTimeMs,
         err: error,
         errName: "UnknownRepositoryError",

@@ -14,6 +14,7 @@ type BaseNavItem = {
   title: string;
   badge?: string;
   icon?: any;
+  isLoading?: boolean;
 };
 
 type NavLink = BaseNavItem & {

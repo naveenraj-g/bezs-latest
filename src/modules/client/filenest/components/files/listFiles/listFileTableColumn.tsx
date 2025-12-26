@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { bytesToSize, formatSmartDate } from "@/modules/shared/helper";
 import { TGetUserFilesControllerOutput } from "@/modules/server/filenest/interface-adapters/controllers/filenest";
 import { fileNestUserStore } from "@/modules/client/shared/store/filenest-user-store";
+import { filenestUserModalStore } from "../../../stores/user-modal-store";
 
 export const listFileTableColumn = (): ColumnDef<
   TGetUserFilesControllerOutput[number]
@@ -92,6 +93,7 @@ export const listFileTableColumn = (): ColumnDef<
         id: userFileData.id,
       };
       const openModal = fileNestUserStore((state) => state.onOpen);
+      const openUserModal = filenestUserModalStore((state) => state.onOpen);
 
       return (
         <DropdownMenu>
@@ -125,7 +127,12 @@ export const listFileTableColumn = (): ColumnDef<
                   Download
                 </a>
               </DropdownMenuItem>
-              <DropdownMenuItem className="text-foreground">
+              <DropdownMenuItem
+                className="text-foreground"
+                onClick={() => {
+                  openUserModal({ type: "shareFile", fileData });
+                }}
+              >
                 <Share2 className="h-4 w-4 text-inherit" /> Share
               </DropdownMenuItem>
             </DropdownMenuGroup>

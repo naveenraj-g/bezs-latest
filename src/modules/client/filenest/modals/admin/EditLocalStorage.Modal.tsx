@@ -20,7 +20,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { updateLocalStorageConfig } from "../../server-actions/local-storage-action";
-import { LocalStorageForm } from "../../forms/admin/LocalStorageForm";
+import { LocalStorageForm } from "../../forms/modals/admin/LocalStorageForm";
 
 export const EditLocalStorageModal = () => {
   const session = useSession();

@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import type { ComponentType } from "react";
-import type { LucideProps } from "lucide-react";
+import { Loader2, LucideProps } from "lucide-react";
 import dynamicIconImports from "lucide-react/dynamicIconImports";
 
 type IconName = keyof typeof dynamicIconImports;
@@ -18,7 +18,7 @@ export default function DynamicIcon({
     iconCache[name] ||
     (iconCache[name] = dynamic(dynamicIconImports[name], {
       ssr: false,
-      loading: () => <div>...</div>,
+      loading: () => <Loader2 className="animate-spin text-muted-foreground" />,
     }));
 
   if (!Icon) {

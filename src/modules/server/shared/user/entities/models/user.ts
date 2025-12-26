@@ -14,3 +14,14 @@ export type TUserUniqueFields = {
   email?: string;
   username?: string;
 };
+
+export type TUserUserNameOrEmailAndOrgId = {
+  email?: string;
+  username?: string;
+  orgId: string;
+};
+
+export type TGetUserByUserNameOrEmailAndOrgId = {
+  orgId: string;
+  emailOrUsername: string;
+};

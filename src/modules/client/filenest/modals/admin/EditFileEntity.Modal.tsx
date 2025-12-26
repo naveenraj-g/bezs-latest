@@ -18,7 +18,7 @@ import {
 } from "@/modules/shared/schemas/filenest/filenestValidationSchemas";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FileEntityForm } from "../../forms/admin/FileEntityForm";
+import { FileEntityForm } from "../../forms/modals/admin/FileEntityForm";
 import { updateFileEntity } from "../../server-actions/file-entity-action";
 import { useEffect } from "react";
 

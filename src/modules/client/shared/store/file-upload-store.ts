@@ -1,4 +1,4 @@
-import { TGetFileUploadRequiredDataControllerOutput } from "@/modules/server/filenest/interface-adapters/controllers/fileUpload";
+import { TGetFileUploadRequiredDataControllerOutput } from "@/modules/server/filenest/interface-adapters/controllers/localFileOperation";
 import { ZSAError } from "zsa";
 import { create } from "zustand";
 

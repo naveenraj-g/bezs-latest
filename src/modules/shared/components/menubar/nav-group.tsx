@@ -78,7 +78,12 @@ function SidebarMenuLink({ item, href }: { item: NavLink; href: string }) {
       >
         <Link href={item.url} onClick={() => setOpenMobile(false)}>
           {/* {item.icon && <item.icon />} */}
-          {item.icon && <IconComponent name={item.icon} />}
+          {item.icon && (
+            <IconComponent
+              name={item.icon}
+              className={item.isLoading ? "animate-spin" : undefined}
+            />
+          )}
           <span>{item.title}</span>
           {item.badge && <NavBadge>{item.badge}</NavBadge>}
         </Link>
@@ -106,7 +111,12 @@ function SidebarMenuCollapsible({
         <CollapsibleTrigger asChild>
           <SidebarMenuButton tooltip={item.title}>
             {/* {item.icon && <item.icon />} */}
-            {item.icon && <IconComponent name={item.icon} />}
+            {item.icon && (
+              <IconComponent
+                name={item.icon}
+                className={item.isLoading ? "animate-spin" : undefined}
+              />
+            )}
             <span>{item.title}</span>
             {item.badge && <NavBadge>{item.badge}</NavBadge>}
             <ChevronRight className="ms-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 rtl:rotate-180" />
@@ -126,7 +136,14 @@ function SidebarMenuCollapsible({
                       onClick={() => setOpenMobile(false)}
                     >
                       {/* {subItem.icon && <subItem.icon />} */}
-                      {subItem.icon && <IconComponent name={subItem.icon} />}
+                      {subItem.icon && (
+                        <IconComponent
+                          name={subItem.icon}
+                          className={
+                            item.isLoading ? "animate-spin" : undefined
+                          }
+                        />
+                      )}
                       <span>{subItem.title}</span>
                       {subItem.badge && <NavBadge>{subItem.badge}</NavBadge>}
                     </Link>
@@ -157,7 +174,12 @@ function SidebarMenuCollapsedDropdown({
             isActive={checkIsActive(href, item)}
           >
             {/* {item.icon && <item.icon />} */}
-            {item.icon && <IconComponent name={item.icon} />}
+            {item.icon && (
+              <IconComponent
+                name={item.icon}
+                className={item.isLoading ? "animate-spin" : undefined}
+              />
+            )}
             <span>{item.title}</span>
             {item.badge && <NavBadge>{item.badge}</NavBadge>}
             <ChevronRight className="ms-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
@@ -177,7 +199,12 @@ function SidebarMenuCollapsedDropdown({
                     checkIsActive(href, sub) ? "bg-secondary" : ""
                   }`}
                 >
-                  {sub.icon && <IconComponent name={sub.icon} />}
+                  {sub.icon && (
+                    <IconComponent
+                      name={sub.icon}
+                      className={item.isLoading ? "animate-spin" : undefined}
+                    />
+                  )}
                   <span className="max-w-52 text-wrap">{sub.title}</span>
                   {sub.badge && (
                     <span className="ms-auto text-xs">{sub.badge}</span>

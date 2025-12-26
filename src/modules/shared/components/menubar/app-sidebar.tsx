@@ -43,6 +43,21 @@ const MENU_ITEMS = {
   ],
 };
 
+const LOADING_ITEMS = {
+  navGroups: [
+    {
+      title: "Loading Menu Items...",
+      items: [
+        {
+          title: "Loading...",
+          icon: "loader-circle",
+          isLoading: true,
+        },
+      ],
+    },
+  ],
+};
+
 const roleBasedApps = ["telemedicine", "admin", "filenest", "aihub"];
 
 export function AppSidebar({ user, orgs }: { user: TUser; orgs: TOrgs }) {
@@ -115,15 +130,21 @@ export function AppSidebar({ user, orgs }: { user: TUser; orgs: TOrgs }) {
         )}
       </SidebarHeader>
       <SidebarContent>
-        {menuItems.navGroups.map((props: any) => (
-          <NavGroup key={props.title} {...props} />
-        ))}
+        {!error &&
+          !isPending &&
+          menuItems.navGroups.map((props: any) => (
+            <NavGroup key={props.title} {...props} />
+          ))}
         {error && <div className="px-4 text-sm">{error}</div>}
-        {!isHome && !error && isPending && (
-          <div className="flex items-center gap-2 px-4 text-sm">
-            <Loader2 className="animate-spin size-4" /> Loading...
-          </div>
-        )}
+        {!isHome &&
+          !error &&
+          isPending &&
+          // <div className="flex items-center gap-2 px-4 text-sm">
+          //   <Loader2 className="animate-spin size-4" /> Loading...
+          // </div>
+          LOADING_ITEMS.navGroups.map((props: any) => (
+            <NavGroup key={props.title} {...props} />
+          ))}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={user} isSidebar />

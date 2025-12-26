@@ -20,7 +20,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { updateAppStorageSetting } from "../../server-actions/app-storage-setting-action";
-import { AppSettingForm } from "../../forms/admin/AppSettingForm";
+import { AppSettingForm } from "../../forms/modals/admin/AppSettingForm";
 
 export const EditAppSettingModal = () => {
   const session = useSession();

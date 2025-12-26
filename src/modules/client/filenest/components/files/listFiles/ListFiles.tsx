@@ -3,14 +3,14 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TSharedUser } from "@/modules/shared/types";
 import { useQuery } from "@tanstack/react-query";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import ListFileTable from "./ListFileTable";
 import { getFileUploadRequiredDataWithAppSlug } from "@/modules/client/shared/server-actions/file-upload-action";
 import { getUserFiles } from "../../../server-actions/filenest-actions";
 import { updateQueryParam } from "@/modules/shared/utils/updateQueryParam";
 import { useRouter } from "@/i18n/navigation";
-import { useEffect } from "react";
+import { ListFilesSkeleton } from "./ListFilesSkeleton";
 
 interface IListFilesProps {
   user: TSharedUser;
@@ -53,17 +53,8 @@ function ListFiles({ user }: IListFilesProps) {
       }),
   });
 
-  useEffect(() => {
-    if (!filesDataIsFetching) return;
-    updateQueryParam("filterBy", null, searchParams!, router);
-  }, [filesDataIsFetching, router, searchParams]);
-
   if (fileUploadDataIsPending || fileUploadDataIsFetching)
-    return (
-      <div className="flex items-center gap-2 justify-center mt-18 text-muted-foreground">
-        <Loader2 className="animate-spin size-5" /> Loading...
-      </div>
-    );
+    return <ListFilesSkeleton />;
 
   if (filesDataError || fileUploadDataError)
     return (

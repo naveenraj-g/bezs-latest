@@ -11,6 +11,7 @@ import {
   OrgAccessCheckRepositoryModule,
   DoctorWeeklyAvailabilityModule,
   DoctorModule,
+  DashboardModule,
 } from "./modules";
 
 const TelemedicineContainer = new Container({ defaultScope: "Singleton" });
@@ -25,6 +26,7 @@ const initializeContainer = () => {
   TelemedicineContainer.load(OrgAccessCheckRepositoryModule);
   TelemedicineContainer.load(DoctorWeeklyAvailabilityModule);
   TelemedicineContainer.load(DoctorModule);
+  TelemedicineContainer.load(DashboardModule);
 };
 
 initializeContainer();

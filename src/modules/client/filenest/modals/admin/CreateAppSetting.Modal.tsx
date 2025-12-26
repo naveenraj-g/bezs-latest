@@ -18,7 +18,7 @@ import {
 } from "@/modules/shared/schemas/filenest/filenestValidationSchemas";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AppSettingForm } from "../../forms/admin/AppSettingForm";
+import { AppSettingForm } from "../../forms/modals/admin/AppSettingForm";
 import { createAppStorageSetting } from "../../server-actions/app-storage-setting-action";
 
 export const CreateAppSettingModal = () => {

@@ -90,4 +90,61 @@ export class FilenestRepository implements IFilenestRepository {
       });
     }
   }
+
+  async checkFileOwnerByUserIdAndOrgId(
+    userId: string,
+    orgId: string,
+    userFileId: bigint
+  ): Promise<boolean> {
+    const startTimeMs = Date.now();
+    const operationId = randomUUID();
+
+    logOperation("start", {
+      name: "checkFileOwnerByUserIdAndOrgIdRepository",
+      startTimeMs,
+      context: { operationId },
+    });
+
+    try {
+      const file = await prismaFilenest.userFile.findUnique({
+        where: {
+          id: userFileId,
+          userId,
+          orgId,
+        },
+      });
+
+      if (!file) {
+        logOperation("success", {
+          name: "checkFileOwnerByUserIdAndOrgIdRepository",
+          startTimeMs,
+          context: { operationId },
+        });
+        return false;
+      }
+
+      logOperation("success", {
+        name: "checkFileOwnerByUserIdAndOrgIdRepository",
+        startTimeMs,
+        context: { operationId },
+      });
+
+      return true;
+    } catch (error) {
+      logOperation("error", {
+        name: "checkFileOwnerByUserIdAndOrgIdRepository",
+        startTimeMs,
+        err: error,
+        errName: "UnknownRepositoryError",
+        context: { operationId },
+      });
+
+      if (error instanceof Error) {
+        throw new OperationError(error.message, { cause: error });
+      }
+      throw new OperationError("An unexpected error occurred", {
+        cause: error,
+      });
+    }
+  }
 }

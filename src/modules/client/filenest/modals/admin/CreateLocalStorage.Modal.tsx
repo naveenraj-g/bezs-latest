@@ -12,7 +12,7 @@ import { useSession } from "@/modules/client/auth/betterauth/auth-client";
 import { useFilenestAdminStoreModal } from "../../stores/admin-store-modal";
 import { useServerAction } from "zsa-react";
 import { handleInputParseError } from "@/modules/shared/utils/handleInputParseError";
-import { LocalStorageForm } from "../../forms/admin/LocalStorageForm";
+import { LocalStorageForm } from "../../forms/modals/admin/LocalStorageForm";
 import {
   CreateOrUpdateLocalStorageFormSchema,
   TCreateOrUpdateLocalStorageFormSchema,

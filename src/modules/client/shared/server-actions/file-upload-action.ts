@@ -2,10 +2,10 @@
 
 import {
   getFileUploadRequiredDataController,
-  localUploadUserFileController,
+  uploadLocalUserFileController,
   TGetFileUploadRequiredDataControllerOutput,
-  TLocalUploadUserFileControllerOutput,
-} from "@/modules/server/filenest/interface-adapters/controllers/fileUpload";
+  TUploadLocalUserFileControllerOutput,
+} from "@/modules/server/filenest/interface-adapters/controllers/localFileOperation";
 import { GetFileEntitiesByAppIdValidationSchema } from "@/modules/shared/schemas/filenest/filenestValidationSchemas";
 import { FileUploadValidationSchema } from "@/modules/shared/schemas/filenest/fileUploadValidationSchema";
 import { getAppSlugServerOnly } from "@/modules/shared/utils/getAppSlugServerOnly";
@@ -47,7 +47,7 @@ export const getFileUploadRequiredDataWithAppSlug = createServerAction()
     );
   });
 
-export const localUploadUserFile = createServerAction()
+export const uploadLocalUserFile = createServerAction()
   .input(
     FileUploadValidationSchema.and(
       z.object({ revalidatePath: z.string().nullish() })
@@ -57,9 +57,9 @@ export const localUploadUserFile = createServerAction()
   .handler(async ({ input }) => {
     const { revalidatePath: url, ...data } = input;
 
-    return await withMonitoring<TLocalUploadUserFileControllerOutput>(
-      "localUploadUserFile",
-      () => localUploadUserFileController(data),
+    return await withMonitoring<TUploadLocalUserFileControllerOutput>(
+      "uploadLocalUserFile",
+      () => uploadLocalUserFileController(data),
       {
         operationErrorMessage: "Failed to upload file.",
         url,
