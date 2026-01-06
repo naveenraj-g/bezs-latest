@@ -54,8 +54,17 @@ export function NavUser({
   async function handleLogout() {
     const [data] = await execute();
 
-    if (data?.success) {
+    if (!data) {
+      toast.error("Something went wrong!", {
+        description: "Failed to logout",
+        richColors: true,
+      });
+      return;
+    }
+
+    if (data.success) {
       router.push("/");
+      router.refresh();
     }
   }
 

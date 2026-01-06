@@ -3,11 +3,14 @@ import { getServerSession } from "@/modules/server/auth/betterauth/auth-server";
 
 const AuthLayout = async ({ children }: { children: React.ReactNode }) => {
   const session = await getServerSession();
+
   return (
     <>
       <main className="w-full min-h-screen">
         <RootNavBarPage session={session} />
-        <div className="flex items-center justify-center p-32">{children}</div>
+        <div className="flex items-center justify-center pt-32 mx-4">
+          {children}
+        </div>
       </main>
     </>
   );

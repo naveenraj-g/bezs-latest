@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import ConversationChat from "./chat/Conversation";
-import UserPromptInput from "./chat/PromptInput";
 import { Brain, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -43,7 +42,6 @@ type TMessageItem = {
 };
 
 function AiIntake({ user, appointmentData }: TProps) {
-  // const setConversation = useIntakeStore((state) => state.setConversation);
   const openModal = usePatientModalStore((state) => state.onOpen);
 
   const [callStarted, setCallStarted] = useState(false);
@@ -99,36 +97,20 @@ function AiIntake({ user, appointmentData }: TProps) {
     setIsConnecting(true);
 
     try {
-      const vapi = new Vapi(process.env.NEXT_PUBLIC_VAPI_API_KEY!);
+      const res = await fetch("/api/runtime-config", {
+        cache: "no-store",
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to start call");
+      }
+
+      const { vapiPublicKey, vapiAgentId } = await res.json();
+      const vapi = new Vapi(vapiPublicKey);
       setVapiInstance(vapi);
 
-      const vapiAgentConfig = {
-        name: "AI Medical Intake Assistant",
-        firstMessage:
-          "Hello, thank you for connecting. Can you please tell me your full name and age?",
-        transcriber: {
-          provider: "assembly-ai",
-          language: "en",
-        },
-        voice: {
-          provider: "playht",
-          voiceId: appointmentData.assistant.voiceId,
-        },
-        model: {
-          provider: "openai",
-          model: "gpt-4",
-          messages: [
-            {
-              role: "system",
-              content: appointmentData.assistant.agentPrompt,
-            },
-          ],
-        },
-      };
-
       // start (ts-ignore for Vapi start types)
-      // @ts-expect-error -- third-party Vapi types are incompatible with start signature
-      vapi.start(vapiAgentConfig);
+      vapi.start(vapiAgentId);
 
       // named handlers
       const onCallStart = () => {
@@ -170,8 +152,7 @@ function AiIntake({ user, appointmentData }: TProps) {
       const onError = (error: any) => {
         console.error("Vapi error", error);
         toast.error("Voice assistant error", {
-          description:
-            typeof error === "string" ? error : JSON.stringify(error),
+          description: "Failed to connect with assistant.",
           richColors: true,
         });
       };
@@ -239,32 +220,6 @@ function AiIntake({ user, appointmentData }: TProps) {
       setLoading(false);
     }
   };
-
-  // send text to vapi and add user message locally
-  // const sendTextToAgent = async (text: string) => {
-  //   if (!text?.trim()) return;
-
-  //   // optimistic add user message
-  //   const userMsg: TMessageItem = {
-  //     key: nanoid(),
-  //     from: "user",
-  //     content: text,
-  //   };
-  //   addMessage(userMsg);
-
-  //   if (vapiInstance) {
-  //     try {
-  //       // @ts-expect-error -- third-party Vapi types are incompatible with start signature
-  //       vapiInstance.send({ type: "add-message", text });
-  //     } catch (err) {
-  //       console.error("sendTextToAgent error", err);
-  //       toast.error("Failed to send message to assistant");
-  //     }
-  //   } else {
-  //     // if vapi not running, you might want to queue or inform user
-  //     toast.error("Assistant is not connected. Start the call first.");
-  //   }
-  // };
 
   // cleanup on unmount
   useEffect(() => {
@@ -358,7 +313,6 @@ function AiIntake({ user, appointmentData }: TProps) {
           Start Call
         </Button>
       )}
-      {/* <UserPromptInput onSend={sendTextToAgent} /> */}
     </div>
   );
 }

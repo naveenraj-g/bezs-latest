@@ -1,27 +1,23 @@
 "use client";
 
-import { Bell, Search } from "lucide-react";
+import { Bell } from "lucide-react";
 
 // import { useTranslations } from "next-intl";
 import LocaleSwitcher from "../LocaleSwitcher";
 import { NavUser } from "../nav-user";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@/components/ui/input-group";
-import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { CommandSearch } from "./command-search";
 
 type TUser = {
-  name?: string;
-  email?: string;
-  image?: string | null | undefined;
-  username?: string | null | undefined;
+  name: string;
+  email: string;
+  image?: string | null;
+  username?: string | null;
+  currentOrgId?: string | null;
+  role?: string | null;
 };
 
 const AppNavbar = ({ user }: { user: TUser }) => {
@@ -62,21 +58,7 @@ const AppNavbar = ({ user }: { user: TUser }) => {
             variant="outline"
           />
           <Separator orientation="vertical" className="!h-6" />
-          {/* <InputGroup>
-            <InputGroupInput
-              placeholder="Search..."
-              className="!h-6 !rounded-4xl"
-            />
-            <InputGroupAddon>
-              <Search />
-            </InputGroupAddon>
-            <InputGroupAddon align="inline-end">
-              <KbdGroup>
-                <Kbd>⌘ k</Kbd>
-              </KbdGroup>
-            </InputGroupAddon>
-          </InputGroup> */}
-          <CommandSearch />
+          <CommandSearch user={user} />
         </div>
 
         <div className="flex items-center gap-6">

@@ -40,6 +40,7 @@ export default function Consult({
   const [token, setToken] = useState("");
   const [isEnded, setIsEnded] = useState(false);
   const [transcripts, setTranscripts] = useState<Transcript[]>([]);
+  const [livekitUrl, setLivekitUrl] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -58,7 +59,26 @@ export default function Consult({
     })();
   }, [roomId, participant.name]);
 
-  if (!token) {
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/api/runtime-config", {
+          cache: "no-store",
+        });
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch runtime config");
+        }
+
+        const data = await res.json();
+        setLivekitUrl(data.livekitUrl);
+      } catch (err) {
+        toast.error("Failed to load LiveKit config");
+      }
+    })();
+  }, []);
+
+  if (!token || !livekitUrl) {
     return (
       <div className="flex items-center justify-center mt-20">
         <p className="inline-flex items-center gap-2">
@@ -84,7 +104,7 @@ export default function Consult({
       video={true}
       audio={true}
       token={token}
-      serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
+      serverUrl={livekitUrl}
       data-lk-theme="default"
       onDisconnected={onLeave}
       className="!bg-transparent !shadow-none !h-[calc(100vh-162px)]"
@@ -126,13 +146,11 @@ export default function Consult({
 
               {/* Transcript panel (fills remaining space, scrolls) */}
               <div className="flex-1 min-h-0 overflow-auto">
-                {!isEnded && (
-                  <TranscriptPanel
-                    roomId={roomId}
-                    transcripts={transcripts}
-                    setTranscripts={captureTranscript}
-                  />
-                )}
+                <TranscriptPanel
+                  roomId={roomId}
+                  transcripts={transcripts}
+                  setTranscripts={captureTranscript}
+                />
               </div>
             </aside>
           </div>

@@ -29,11 +29,12 @@ async function PatientDashboardPage() {
         userId: user.id,
       },
     },
+    include: {
+      personal: true,
+    },
   });
 
-  console.log(patient);
-
-  if (!patient) {
+  if (!patient || !patient.personal) {
     redirect({ href: "/bezs/telemedicine/patient/profile", locale });
     return;
   }

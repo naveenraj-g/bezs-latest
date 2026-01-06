@@ -42,7 +42,7 @@ export function TranscriptPanel({
   // SSE Subscription
   useEffect(() => {
     setError(null);
-    const pyUrl = process.env.NEXT_PUBLIC_PY_AGENT_URL;
+    const pyUrl = "http://livekit-agent:8080";
 
     if (!pyUrl) {
       setError("Failed to get transcripts");

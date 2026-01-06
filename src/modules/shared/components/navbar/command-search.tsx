@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/command";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Link } from "@/i18n/navigation";
-import { useSession } from "@/modules/client/auth/betterauth/auth-client";
 import { SearchIcon } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -38,8 +37,20 @@ const appsList = [
   },
 ];
 
-export function CommandSearch() {
-  const session = useSession();
+type TUser = {
+  name: string;
+  email: string;
+  image?: string | null;
+  username?: string | null;
+  currentOrgId?: string | null;
+  role?: string | null;
+};
+
+interface ICommandSearchProps {
+  user: TUser;
+}
+
+export function CommandSearch({ user }: ICommandSearchProps) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -53,7 +64,7 @@ export function CommandSearch() {
     return () => document.removeEventListener("keydown", down);
   }, []);
 
-  const role = session?.data?.user?.role;
+  const role = user.role;
 
   return (
     <>
@@ -79,29 +90,39 @@ export function CommandSearch() {
         <CommandList>
           <ScrollArea type="hover" className="h-72 pe-1">
             <CommandEmpty>No results found.</CommandEmpty>
-            <CommandGroup heading="Apps">
-              <div>
-                {appsList.map((app) => {
-                  const h = app[role as keyof typeof app];
+            {role ? (
+              <CommandGroup heading="Apps">
+                <div>
+                  {appsList.map((app) => {
+                    const h = app[role as keyof typeof app];
 
-                  if (!h) return null;
+                    if (!h) return null;
 
-                  return (
-                    <CommandItem asChild key={app.name}>
-                      <Link href={h} onClick={() => setOpen(false)}>
-                        <Image
-                          src={app.logo}
-                          alt={app.name}
-                          width={20}
-                          height={20}
-                        />
-                        <p>{app.name}</p>
-                      </Link>
-                    </CommandItem>
-                  );
-                })}
-              </div>
-            </CommandGroup>
+                    return (
+                      <CommandItem asChild key={app.name}>
+                        <Link href={h} onClick={() => setOpen(false)}>
+                          <Image
+                            src={app.logo}
+                            alt={app.name}
+                            width={20}
+                            height={20}
+                          />
+                          <p>{app.name}</p>
+                        </Link>
+                      </CommandItem>
+                    );
+                  })}
+                </div>
+              </CommandGroup>
+            ) : (
+              <CommandGroup heading="Apps">
+                <CommandItem disabled>
+                  <span className="text-muted-foreground text-sm">
+                    No apps available for your role
+                  </span>
+                </CommandItem>
+              </CommandGroup>
+            )}
           </ScrollArea>
         </CommandList>
       </CommandDialog>

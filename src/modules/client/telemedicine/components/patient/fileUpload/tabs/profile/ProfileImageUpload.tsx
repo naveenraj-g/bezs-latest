@@ -13,6 +13,7 @@ import { Camera, Loader2, Upload, User, X } from "lucide-react";
 import { toast } from "sonner";
 import { useServerAction } from "zsa-react";
 import ProfileImageUploadSkeleton from "./skeleton/ProfileImageUploadSkeleton";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface IProfileImageUploadProps {
   user: TSharedUser;
@@ -20,6 +21,7 @@ interface IProfileImageUploadProps {
 }
 
 function ProfileImageUpload({ entityId, user }: IProfileImageUploadProps) {
+  const queryClient = useQueryClient();
   /** ---------------- File Upload Hook ---------------- */
   const upload = useFileUploadCore({
     maxSizeMb: 5,
@@ -58,6 +60,10 @@ function ProfileImageUpload({ entityId, user }: IProfileImageUploadProps) {
       onSuccess() {
         toast.success("Profile photo uploaded");
         upload.clearFiles();
+
+        queryClient.invalidateQueries({
+          queryKey: ["userProfilePhoto", entityId?.toString()],
+        });
       },
       onError({ err }) {
         toast.error("Upload failed", {

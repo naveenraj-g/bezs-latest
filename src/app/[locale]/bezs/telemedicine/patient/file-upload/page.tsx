@@ -29,9 +29,12 @@ async function PatientFileUploadPage() {
         userId: user.id,
       },
     },
+    include: {
+      personal: true,
+    },
   });
 
-  if (!patient) {
+  if (!patient || !patient.personal) {
     redirect({ href: "/bezs/telemedicine/patient/profile", locale });
     return;
   }

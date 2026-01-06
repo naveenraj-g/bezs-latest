@@ -39,8 +39,6 @@ Information to collect:
 - Full name
 - Age
 - Gender
-- Phone number
-- Email address
 - City / Location
 
 2. Medical Information:
@@ -85,8 +83,6 @@ If asked for structured format, provide JSON:
   "name": "",
   "age": "",
   "gender": "",
-  "phone": "",
-  "email": "",
   "location": "",
   "reason_for_visit": "",
   "symptoms": "",

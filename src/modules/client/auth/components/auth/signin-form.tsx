@@ -108,9 +108,7 @@ export function SignInForm() {
       <Card className="w-[380px]">
         <CardHeader>
           <CardTitle className="text-xl">{t("title")}</CardTitle>
-          <CardDescription className="text-xs">
-            {t("description")}
-          </CardDescription>
+          <CardDescription>{t("description")}</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>

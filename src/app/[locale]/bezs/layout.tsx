@@ -21,14 +21,16 @@ const AppListingLayout = async ({
 
   if (!session) {
     redirect({ href: "/signin", locale });
+    return;
   }
 
   const user = {
-    name: session?.user.name,
-    email: session?.user.email,
-    image: session?.user.image,
-    username: session?.user.username,
-    currentOrgId: session?.user.currentOrgId,
+    name: session.user.name,
+    email: session.user.email,
+    image: session.user.image,
+    username: session.user.username,
+    currentOrgId: session.user.currentOrgId,
+    role: session?.user.role,
   };
 
   const orgs = session?.organizations;

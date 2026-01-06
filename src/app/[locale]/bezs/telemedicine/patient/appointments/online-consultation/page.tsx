@@ -20,16 +20,27 @@ const PatientOnlineConsultationPage = async (
     return;
   }
 
+  const user = {
+    id: session.user.id,
+    name: session.user.name,
+    email: session.user.email,
+    image: session.user.image,
+    orgId: session.user?.currentOrgId,
+  };
+
   const patient = await prismaTelemedicine.patient.findUnique({
     where: {
       orgId_userId: {
-        orgId: session.user.currentOrgId,
-        userId: session.user.id,
+        orgId: user.orgId,
+        userId: user.id,
       },
+    },
+    include: {
+      personal: true,
     },
   });
 
-  if (!patient) {
+  if (!patient || !patient.personal) {
     redirect({ href: "/bezs/telemedicine/patient/profile", locale });
     return;
   }

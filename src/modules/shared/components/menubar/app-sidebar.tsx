@@ -23,6 +23,7 @@ type TUser = {
   image?: string | null;
   username?: string | null;
   currentOrgId?: string | null;
+  role?: string | null;
 };
 
 type TOrgs = {
@@ -61,7 +62,7 @@ const roleBasedApps = ["telemedicine", "admin", "filenest", "aihub"];
 
 export function AppSidebar({ user, orgs }: { user: TUser; orgs: TOrgs }) {
   const pathname = usePathname();
-  const { data, isPending } = useSession();
+  const { data, isPending, refetch } = useSession();
 
   const [menuItems, setMenuItems] = useState<any>(MENU_ITEMS);
   const [error, setError] = useState<string | null>(null);
@@ -82,6 +83,11 @@ export function AppSidebar({ user, orgs }: { user: TUser; orgs: TOrgs }) {
 
     if (isPending) {
       setMenuItems(MENU_ITEMS);
+      return;
+    }
+
+    if (!data?.userRBAC && !isPending) {
+      refetch();
       return;
     }
 

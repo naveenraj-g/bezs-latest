@@ -1,6 +1,7 @@
 import { PatientProfilePersonalDetails } from "@/modules/client/telemedicine/components/patient/patientProfilePersonalDetails";
 import { getPatientWithPersonalProfile } from "@/modules/client/telemedicine/server-actions/patientProfile-actions";
 import { getServerSession } from "@/modules/server/auth/betterauth/auth-server";
+import { CircleAlert } from "lucide-react";
 
 async function PatientProfilePage() {
   const session = await getServerSession();
@@ -28,6 +29,13 @@ async function PatientProfilePage() {
 
   return (
     <div>
+      {(!patientWithPersonalProfileData ||
+        !patientWithPersonalProfileData.personal) && (
+        <div className="bg-warning/20 text-warning flex items-center gap-2 p-2 px-4 rounded-full mb-4">
+          <CircleAlert className="size-5" />
+          <p>Complete your profile first!</p>
+        </div>
+      )}
       <PatientProfilePersonalDetails
         user={user}
         data={patientWithPersonalProfileData}

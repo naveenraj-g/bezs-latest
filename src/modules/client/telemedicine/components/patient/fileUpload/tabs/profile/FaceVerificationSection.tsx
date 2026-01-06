@@ -5,6 +5,7 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUp,
+  Loader2,
   Shield,
   User,
 } from "lucide-react";
@@ -16,7 +17,7 @@ import { useServerAction } from "zsa-react";
 import { uploadLocalUserFile } from "@/modules/client/shared/server-actions/file-upload-action";
 import { toast } from "sonner";
 import { getUserFilesByEntityIdAction } from "@/modules/client/filenest/server-actions/filenest-actions";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import FacialAngleCardLoaderSkeleton from "./skeleton/FacialAngleCardSkeleton";
 
 const facialAngles = [
@@ -61,6 +62,7 @@ function FaceVerificationSection({
   user,
   entityId,
 }: IFaceVerificationSectionProps) {
+  const queryClient = useQueryClient();
   const uploads = useTelemedicineFaceVerificationUploads();
 
   /** ---------------- Fetch Existing Profile Photo ---------------- */
@@ -93,6 +95,9 @@ function FaceVerificationSection({
       uploads.left.clearFiles();
       uploads.right.clearFiles();
       uploads.up.clearFiles();
+      queryClient.invalidateQueries({
+        queryKey: ["userFaceVerificationPhoto", entityId?.toString()],
+      });
     },
     onError() {
       toast.error("Upload failed", {
@@ -126,7 +131,7 @@ function FaceVerificationSection({
         ?.file,
     }));
 
-    if (!!files.length) {
+    if (files.length <= 0) {
       toast.error("Please upload photos");
       return;
     }
@@ -200,7 +205,13 @@ function FaceVerificationSection({
             }
             onClick={handleSubmitFile}
           >
-            Submit for Verification
+            {isPendingUploadFaceVerificationPhoto ? (
+              <>
+                <Loader2 className="animate-spin" /> Submit for Verification
+              </>
+            ) : (
+              "Submit for Verification"
+            )}
           </Button>
         </>
       )}
