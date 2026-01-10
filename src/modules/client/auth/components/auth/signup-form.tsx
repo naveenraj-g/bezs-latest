@@ -68,7 +68,7 @@ export function SignUpForm() {
     onSuccess({ data }) {
       if (data.success) {
         toast.success("Signup success!");
-        router.push(data?.redirectUrl ?? "/bezs");
+        router.push(data?.redirectUrl ?? "/");
       }
     },
     onError({ err }) {

@@ -27,4 +27,5 @@ export const prismaFilenest =
 if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prismaMain = prismaMain;
   globalForPrisma.prismaTelemedicine = prismaTelemedicine;
+  globalForPrisma.prismaFilenest = prismaFilenest;
 }

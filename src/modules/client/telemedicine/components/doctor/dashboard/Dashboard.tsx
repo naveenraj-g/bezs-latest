@@ -49,7 +49,7 @@ function DoctorDashboard() {
   return (
     <div>
       <header className="mb-4">
-        <div>
+        <div className="flex items-center gap-2 justify-between">
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary">
               <Calendar className="size-6 text-primary-foreground" />
@@ -62,6 +62,14 @@ function DoctorDashboard() {
                 Patient appointment management system
               </p>
             </div>
+          </div>
+          <div className="space-y-2">
+            <h2 className="leading-none font-semibold">
+              Today&apos;s Appointments
+            </h2>
+            <p className="text-muted-foreground text-sm">
+              {mockAppointments.length ?? 0} appointments scheduled
+            </p>
           </div>
         </div>
       </header>

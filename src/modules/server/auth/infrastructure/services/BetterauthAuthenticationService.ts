@@ -33,7 +33,7 @@ export class BetterauthAuthenticationService implements IAuthenticationService {
       await auth.api.signInSocial({
         body: {
           provider,
-          callbackURL: "/bezs",
+          callbackURL: "/",
         },
       });
     } catch (error: unknown) {
@@ -57,7 +57,7 @@ export class BetterauthAuthenticationService implements IAuthenticationService {
           email,
           password,
           rememberMe: false,
-          callbackURL: "/bezs",
+          callbackURL: "/",
         },
       });
 
@@ -94,7 +94,7 @@ export class BetterauthAuthenticationService implements IAuthenticationService {
           username,
           password,
           rememberMe: false,
-          callbackURL: "/bezs",
+          callbackURL: "/",
         },
       });
 
@@ -111,7 +111,7 @@ export class BetterauthAuthenticationService implements IAuthenticationService {
       if (response) {
         return {
           redirect: true,
-          url: "/bezs",
+          url: "/",
         };
       }
 
@@ -141,13 +141,13 @@ export class BetterauthAuthenticationService implements IAuthenticationService {
           name,
           email,
           password,
-          callbackURL: "/bezs",
+          callbackURL: "/",
         },
       });
 
       return {
         success: true,
-        redirectUrl: data.user.roleBasedRedirectUrls ?? "/bezs",
+        redirectUrl: "/",
       };
     } catch (error: unknown) {
       if (error instanceof Error) {

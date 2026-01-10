@@ -14,19 +14,28 @@ const intlMiddleware = createMiddleware(routing);
 async function getMiddlewareSession(
   req: NextRequest
 ): Promise<TSession | null> {
+  // pas this in fetch when building for production
   const origin = getOrigin(req);
 
   try {
     // replace req.nextUrl.origin -> to origin;
-    const response = await fetch(`${req.nextUrl.origin}/api/auth/get-session`, {
-      method: "GET",
-      headers: {
-        Cookie: req.headers.get("cookie") || "",
-        "Cache-Control": "no-cache, no-store, must-revalidate",
-      },
-      cache: "no-store",
-      credentials: "same-origin",
-    });
+    const response = await fetch(
+      `${
+        process.env.NODE_ENV === "development" ||
+        process.env.NODE_ENV === "test"
+          ? req.nextUrl.origin
+          : origin
+      }/api/auth/get-session`,
+      {
+        method: "GET",
+        headers: {
+          Cookie: req.headers.get("cookie") || "",
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+        },
+        cache: "no-store",
+        credentials: "same-origin",
+      }
+    );
 
     if (!response.ok) {
       if (response.status === 500) {
@@ -46,6 +55,8 @@ async function getMiddlewareSession(
 function matchRoute(pathname: string, route: string): boolean {
   return pathname === route || pathname.startsWith(`${route}`);
 }
+
+const publicRoutes = ["/", "/chat"];
 
 const authRoutes = [
   "/sign",
@@ -96,7 +107,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  if (pathname === "/") {
+  if (publicRoutes.some((route) => matchRoute(pathname, route))) {
     return NextResponse.next();
   }
 

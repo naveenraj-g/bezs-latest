@@ -36,7 +36,12 @@ export class DashboardRepository implements IDashboardRepository {
       const dashboardData = await prismaTelemedicine.$transaction(
         async (tx) => {
           const appointments = await tx.appointment.findMany({
-            where: whereCondition,
+            where: {
+              ...whereCondition,
+              appointmentMode: {
+                not: "INTAKE",
+              },
+            },
             include: {
               doctor: {
                 select: {

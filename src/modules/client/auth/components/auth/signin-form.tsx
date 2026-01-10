@@ -82,7 +82,7 @@ export function SignInForm() {
     onSuccess({ data }) {
       if (data.redirect) {
         toast.success("Signin Success!");
-        router.push(data?.url ?? "/bezs");
+        router.push(data?.url ?? "/");
       }
     },
     onError({ err }) {

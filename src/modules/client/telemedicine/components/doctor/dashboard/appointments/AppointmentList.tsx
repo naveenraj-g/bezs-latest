@@ -6,8 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Activity, Clock, Mars, User, Venus } from "lucide-react";
+import { Activity, Clock, Mars, Venus } from "lucide-react";
 import { Appointment } from "@/modules/client/telemedicine/datas/doctor-dashboard";
 import { cn } from "@/lib/utils";
 import { StatusIndicator } from "@/modules/shared/utils/status-indicator";
@@ -52,19 +51,24 @@ export const AppointmentList = ({
     <Card
       className={cn(
         "h-full flex flex-col transition-all",
-        isSticky && "rounded-t-none"
+        isSticky && "rounded-t-none py-4"
       )}
     >
-      {!isSticky && (
+      {/* {!isSticky && (
         <CardHeader>
           <CardTitle>Today&apos;s Appointments</CardTitle>
           <CardDescription>
             {appointments.length} appointments scheduled
           </CardDescription>
         </CardHeader>
-      )}
+      )} */}
 
-      <CardContent className="flex-1 flex gap-3 w-full overflow-auto">
+      <CardContent
+        className={cn(
+          "flex-1 flex gap-3 w-full overflow-auto",
+          isSticky && "px-4"
+        )}
+      >
         {appointments.map((appointment) => {
           const status = statusConfig[appointment.status];
           const isSelected = selectedId === appointment.id;
@@ -74,6 +78,7 @@ export const AppointmentList = ({
               key={appointment.id}
               className={cn(
                 "w-fit shrink-0 p-4 cursor-pointer transition-all hover:shadow-md",
+                !isSticky && "mb-2",
                 isSelected
                   ? "border-primary shadow-md bg-primary/5"
                   : "border-border hover:border-primary/50"
@@ -87,11 +92,6 @@ export const AppointmentList = ({
                     <span className="text-sm font-medium text-foreground">
                       {appointment.time}
                     </span>
-                    {/* <Badge
-                      className={cn("rounded-xl ml-2 h-5", status.className)}
-                    >
-                      {status.label}
-                    </Badge> */}
                     <StatusIndicator
                       status={status.label.replaceAll(" ", "").toUpperCase()}
                       className="h-6"
@@ -112,7 +112,12 @@ export const AppointmentList = ({
                     </h3>
                   </div>
 
-                  <p className="text-xs text-muted-foreground line-clamp-2">
+                  <p
+                    className={cn(
+                      "text-xs text-muted-foreground line-clamp-2",
+                      isSticky && "hidden"
+                    )}
+                  >
                     {appointment.reason}
                   </p>
                 </div>
@@ -121,7 +126,7 @@ export const AppointmentList = ({
           );
         })}
       </CardContent>
-      <CardFooter>
+      <CardFooter className={cn("-mt-2", isSticky && "hidden")}>
         {selectedAppointment ? (
           <div className="flex items-center gap-6 w-full">
             <div className="flex items-start gap-2">
