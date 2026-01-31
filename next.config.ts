@@ -16,6 +16,12 @@ const nextConfig: NextConfig = {
     },
     middlewareClientMaxBodySize: "1024mb",
   },
+  webpack: (config, { isServer }) => {
+    if (process.env.DOCKER_BUILD === "true") {
+      config.cache = false;
+    }
+    return config;
+  },
 };
 
 const withNextIntl = createNectIntlPlugin();

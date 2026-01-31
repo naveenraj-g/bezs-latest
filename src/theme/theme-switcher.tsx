@@ -73,7 +73,7 @@ export const ThemeSwitcher = ({
   if (!isMounted) return null;
 
   return (
-    <div className="w-full">
+    <div>
       <DropdownMenu>
         <DropdownMenuTrigger
           asChild
@@ -85,7 +85,7 @@ export const ThemeSwitcher = ({
               size="icon"
               className={cn(
                 isAppNav && "pointer-events-none",
-                "cursor-pointer hover:bg-transparent"
+                "cursor-pointer hover:bg-transparent",
               )}
             >
               <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 dark:text-white" />
@@ -111,7 +111,8 @@ export const ThemeSwitcher = ({
                   key={index}
                   className={cn(
                     "cursor-pointer flex-1/2 hover:bg-secondary/70 text-md py-0.5 px-1 rounded",
-                    resolvedTheme?.split("-")[1] === themeMode && "bg-secondary"
+                    resolvedTheme?.split("-")[1] === themeMode &&
+                      "bg-secondary",
                   )}
                   onClick={() => handleCustomThemeMode(themeMode)}
                 >
@@ -127,7 +128,7 @@ export const ThemeSwitcher = ({
                   key={i}
                   className={cn(
                     "rounded-full w-4 h-4 cursor-pointer flex items-center justify-center",
-                    `${themeColors[theme]}`
+                    `${themeColors[theme]}`,
                   )}
                   onClick={() => handleCustomTheme(theme)}
                 >

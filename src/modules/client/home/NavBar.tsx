@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import React from "react";
 import { useRouter } from "@/i18n/navigation";
 import { HomeNavUser } from "./components/HomeNavUser";
+import { ThemeSwitcher } from "@/theme/theme-switcher";
 
 function HomeChatNavBar({ session }: { session: any }) {
   const router = useRouter();
@@ -16,8 +17,6 @@ function HomeChatNavBar({ session }: { session: any }) {
     currentOrgId: session?.user.currentOrgId,
     role: session?.user.role,
   };
-
-  console.log(session);
 
   const handleOpenApp = () => {
     if (session?.user) {
@@ -36,6 +35,7 @@ function HomeChatNavBar({ session }: { session: any }) {
 
   return (
     <div className="flex items-center justify-end gap-4 px-4 py-2">
+      <ThemeSwitcher />
       {session && <HomeNavUser user={user} />}
       <Button onClick={handleOpenApp} size="sm" className="rounded-full px-6">
         {session?.user ? "Open App" : "Sign In"}

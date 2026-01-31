@@ -64,7 +64,6 @@ export function NavUser({
 
     if (data.success) {
       router.push("/");
-      router.refresh();
     }
   }
 

@@ -19,23 +19,15 @@ async function getMiddlewareSession(
 
   try {
     // replace req.nextUrl.origin -> to origin;
-    const response = await fetch(
-      `${
-        process.env.NODE_ENV === "development" ||
-        process.env.NODE_ENV === "test"
-          ? req.nextUrl.origin
-          : origin
-      }/api/auth/get-session`,
-      {
-        method: "GET",
-        headers: {
-          Cookie: req.headers.get("cookie") || "",
-          "Cache-Control": "no-cache, no-store, must-revalidate",
-        },
-        cache: "no-store",
-        credentials: "same-origin",
-      }
-    );
+    const response = await fetch(`${origin}/api/auth/get-session`, {
+      method: "GET",
+      headers: {
+        Cookie: req.headers.get("cookie") || "",
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+      },
+      cache: "no-store",
+      credentials: "same-origin",
+    });
 
     if (!response.ok) {
       if (response.status === 500) {

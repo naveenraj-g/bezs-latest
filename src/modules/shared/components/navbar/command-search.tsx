@@ -35,6 +35,12 @@ const appsList = [
     doctor: "/bezs/telemedicine/doctor",
     ["application-admin"]: "/bezs/telemedicine/admin",
   },
+  {
+    name: "AI Hub",
+    logo: "/app-icons/aihub.svg",
+    patient: "/bezs/aihub/chat",
+    doctor: "/bezs/aihub/chat",
+  },
 ];
 
 type TUser = {

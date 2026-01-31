@@ -48,7 +48,6 @@ export function HomeNavUser({ user }: { user: TUser }) {
 
     if (data.success) {
       router.push("/");
-      router.refresh();
     }
   }
 
